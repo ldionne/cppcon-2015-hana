@@ -1,0 +1,1166 @@
+<!doctype html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+
+        <title>C++ metaprogramming: a paradigm shift</title>
+
+        <meta name="author" content="Louis Dionne">
+
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+        <link rel="stylesheet" href="css/reveal.css">
+        <link rel="stylesheet" href="css/theme/league.css" id="theme">
+        <link rel="stylesheet" href="css/custom.css">
+
+        <!-- Code syntax highlighting -->
+        <link rel="stylesheet" href="lib/css/zenburn.css">
+
+        <!-- Printing and PDF exports -->
+        <script>
+            var link = document.createElement( 'link' );
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+            document.getElementsByTagName( 'head' )[0].appendChild( link );
+        </script>
+
+        <!--[if lt IE 9]>
+        <script src="lib/js/html5shiv.js"></script>
+        <![endif]-->
+    </head>
+
+    <body>
+        <div class="reveal">
+            <div class="slides">
+                <section data-markdown=""
+                         data-separator="^====+$"
+                         data-separator-vertical="^----+$"
+                         data-notes="^Note:">
+                <script type="text/template">
+
+## C++ metaprogramming
+<h3 style="opacity: 0.8">a paradigm shift</h3>
+<br>
+Louis Dionne, CppCon 2015
+
+==============================================================================
+
+## Quadrants of computation in C++
+
+<!--
+If needed, define new MathJax commands just below this to avoid seeing
+them load on the first slide.
+-->
+
+====================
+
+### Runtime computations (classic)
+
+----
+
+### Runtime sequences
+
+```c++
+std::vector<int> ints{1, 2, 3, 4};
+```
+
+----
+
+### Runtime functions
+
+```c++
+std::string f(int i) {
+  return std::to_string(i * i);
+}
+
+std::string nine = f(3);
+```
+
+----
+
+### Runtime algorithms
+
+```c++
+std::vector<std::string> strings;
+std::transform(ints.begin(), ints.end(),
+               std::back_inserter(strings), f);
+```
+
+====================
+
+### `constexpr` computations
+
+----
+
+### `constexpr` sequences
+
+```c++
+constexpr std::array<int, 4> ints{1, 2, 3, 4};
+```
+
+----
+
+### `constexpr` functions
+
+```c++
+constexpr int factorial(int n) {
+  return n == 0 ? 1 : n * factorial(n - 1);
+}
+
+constexpr int six = factorial(3);
+```
+
+----
+
+### `constexpr` algorithms
+
+```c++
+template <typename T, std::size_t N, typename F>
+  constexpr std::array<std::result_of_t<F(T)>, N>
+transform(std::array<T, N> array, F f) {
+  // ...
+}
+
+constexpr std::array<int, 4> ints{1, 2, 3, 4};
+constexpr std::array<int, 4> facts = transform(ints, factorial);
+```
+
+====================
+
+### Heterogeneous computations (Fusion)
+
+----
+
+### Heterogeneous sequences
+
+```c++
+fusion::vector<int, std::string, float> seq{1, "abc", 3.4f};
+```
+
+----
+
+### Heterogeneous functions
+
+```c++
+struct to_string {
+  template <typename T>
+  std::string operator()(T t) const {
+    std::stringstream ss;
+    ss << t;
+    return ss.str();
+  }
+};
+
+std::string three = to_string{}(3);
+std::string pi = to_string{}(3.14159);
+```
+
+----
+
+### Heterogeneous algorithms
+
+```c++
+fusion::vector<int, std::string, float> seq{1, "abc", 3.4f};
+fusion::vector<std::string, std::string, std::string> strings =
+                fusion::transform(seq, to_string{});
+```
+
+====================
+
+### Type-level computations (MPL)
+
+----
+
+### Type-level sequences
+
+```c++
+using seq = mpl::vector<int, char, float, void>;
+```
+
+----
+
+### Type-level functions
+
+```c++
+template <typename T>
+struct add_const_pointer {
+  using type = T const*;
+};
+
+using result = add_const_pointer<int>::type;
+```
+
+----
+
+### Type-level algorithms
+
+```c++
+using seq = mpl::vector<int, char, float, void>;
+using pointers = mpl::transform<seq,
+                      mpl::quote1<add_const_pointer>>::type;
+```
+
+====================
+
+### Note
+
+```c++
+                    fusion::vector != mpl::vector
+```
+
+----
+
+### Consider
+
+```c++
+mpl::vector<int, void, char>{} // ok
+
+// error: field has incomplete type void
+fusion::vector<int, void, char>{}
+```
+
+====================
+
+## Claim
+### Type-level $\;\subset\;$ heterogeneous <!-- .element class="fragment" -->
+
+==============================================================================
+
+## Why bother?
+
+Note:
+This section contains a couple of motivating examples to pique the curiosity.
+The examples should be skimmed over to avoid losing time and explaining
+details that will be covered later.
+
+====================
+
+### C++14 is a serious game changer
+#### $\rightarrow$ We can do better now
+
+====================
+
+### See for yourself
+
+====================
+
+### Checking for a member: then
+
+%%member-then%%
+
+----
+
+### Checking for a member: soon
+
+%%member-soon%%
+
+----
+
+### Checking for a member: what it should be
+
+%%member-should%%
+
+====================
+
+### Introspection: then
+
+%%introspection-then%%
+
+----
+
+### Introspection: now
+
+%%introspection-now%%
+
+====================
+
+### Generating JSON: then
+
+```c++
+// sorry, not going to implement this
+```
+
+----
+
+### Generating JSON: now
+
+%%json-usage%%
+
+__Output__:
+```json
+[1, "c", {"name" : "Joe", "age" : 30}]
+```
+
+----
+
+### Handle base types
+
+%%json-base%%
+
+----
+
+### Handle `Sequences`
+
+%%json-Sequence%%
+
+----
+
+### Handle `Structs`
+
+%%json-Struct%%
+
+====================
+
+## Still not convinced?
+### Here's more
+
+====================
+
+### Error messages: then
+
+%%error_messages-then%%
+
+```c++
+boost/mpl/clear.hpp:29:7: error:
+  implicit instantiation of undefined template
+  'boost::mpl::clear_impl<mpl_::integral_c_tag>::apply<mpl_::int_<1> >'
+    : clear_impl< typename sequence_tag<Sequence>::type >
+      ^
+```
+
+----
+
+### Error messages: now
+
+%%error_messages-now%%
+
+```c++
+boost/hana/fwd/sequence.hpp:602:13: error:
+  static_assert failed "hana::reverse(xs) requires xs to be a Sequence"
+        static_assert(_models<Sequence, typename datatype<Xs>::type>{},
+        ^             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+error_messages.cpp:19:24:
+  in instantiation of function template specialization
+  'boost::hana::_reverse::operator()<int>' requested here
+auto xs = hana::reverse(1);
+                       ^
+```
+
+====================
+
+### Compile-times: then and now
+
+<!-- .slide: data-state="haschart" -->
+<div class="benchmark-chart" data-dataset="benchmark.including.compile.json"></div>
+
+----
+
+<!-- .slide: data-state="haschart" -->
+<div class="benchmark-chart" data-dataset="benchmark.transform.compile.json"></div>
+
+====================
+
+## We must rethink metaprogramming
+
+====================
+
+## But how?
+### Here's my take <!-- .element class="fragment fade-in" -->
+
+Note:
+Hopefully, the audience should be convinced by now that there's a better way
+to write metaprograms. My goal is now to convince them that I found it.
+
+==============================================================================
+
+### What is an `integral_constant`?
+
+```c++
+template<class T, T v>
+struct integral_constant {
+    static constexpr T value = v;
+    typedef T value_type;
+    typedef integral_constant type;
+    constexpr operator value_type() const noexcept { return value; }
+    constexpr value_type operator()() const noexcept { return value; }
+};
+```
+
+Note:
+This section introduces extensions to `std::integral_constant` that follow
+the general philosophy of the paradigm shift. I am preparing the grounds for
+the next section, which will introduce the type/value unification per-se.
+
+----
+
+### A type-level encoding of a `constexpr` value
+
+```c++
+using one = integral_constant<int, 1>;
+```
+
+----
+
+### A `constexpr`-preserving object
+
+```c++
+template <typename T>
+void f(T t) { static_assert(t == 1, ""); }
+
+constexpr int one = 1;
+f(one);
+// error: t is not constexpr in the body of f
+
+f(integral_constant<int, one>{});
+// ok: implicit conversion to int is constexpr
+```
+
+Note:
+The issue here is that argument passing strips `constexpr`ness. To see it
+clearly, consider what would happen if `f` was not a template and if it was
+defined in a different translation unit. Inside this other TU, how could the
+compiler tell whether the argument `f` is called with is `constexpr` or not?
+
+`constexpr`ness can be retained by encoding the value of the argument in a
+type, and then using the template system to pass this value to the body of
+the function.
+
+====================
+
+### We can do `constexpr` arithmetic
+
+```c++
+constexpr int two = ((3 * 2) + 4) / 5;
+```
+
+----
+
+### `integral_constant` version
+
+```c++
+template <typename X, typename Y>
+struct plus {
+  using type = integral_constant<
+    decltype(X::value + Y::value),
+    X::value + Y::value
+  >;
+};
+
+using three = plus<integral_constant<int, 1>,
+                   integral_constant<int, 2>>::type;
+```
+
+----
+
+### But what if?
+
+```c++
+template <typename V, V v, typename U, U u>
+constexpr auto
+operator+(integral_constant<V, v>, integral_constant<U, u>)
+{ return integral_constant<decltype(v + u), v + u>{}; }
+
+template <typename V, V v, typename U, U u>
+constexpr auto
+operator==(integral_constant<V, v>, integral_constant<U, u>)
+{ return integral_constant<bool, v == u>{}; }
+
+// ...
+```
+
+----
+
+### Tadam!
+
+```c++
+static_assert(decltype(
+  integral_constant<int, 1>{} + integral_constant<int, 4>{}
+                              ==
+                 integral_constant<int, 5>{}
+  )::value, "");
+```
+
+----
+
+### (or simply)
+
+```c++
+static_assert(integral_constant<int, 1>{} + integral_constant<int, 4>{}
+                                          ==
+                            integral_constant<int, 5>{}
+, "");
+```
+
+----
+
+### Pass me the sugar, please
+
+```c++
+template <int i>
+constexpr integral_constant<int, i> int_{};
+
+static_assert(int_<1> + int_<4> == int_<5>, "");
+```
+
+----
+
+### More sugar
+
+```c++
+template <char ...c>
+constexpr auto operator"" _c() {
+  // parse the characters and return an integral_constant
+}
+
+static_assert(1_c + 4_c == 5_c, "");
+```
+
+====================
+
+### Euclidean distance
+
+$$
+  \mathrm{distance}\left((x_1, y_1), (x_2, y_2)\right)
+      := \sqrt{(x_1 - x_2)^2 + (y_1 - y_2)^2}
+$$
+
+----
+
+### Compile-time arithmetic: then
+
+%%arithmetic-then%%
+
+----
+
+### Compile-time arithmetic: now
+
+%%arithmetic-now%%
+
+----
+
+### But runtime arithmetic works too
+
+%%arithmetic-now-dynamic%%
+
+====================
+
+### Pretty cool? Wait!
+
+```c++
+template <typename T, T n>
+struct integral_constant {
+  // ...
+
+  template <typename F>
+  void times(F f) const {
+    f(); f(); ... f(); // n times
+  }
+};
+```
+
+----
+
+### Loop unrolling: then
+
+%%unrolling-then%%
+
+----
+
+### Loop unrolling: now
+
+%%unrolling-now%%
+
+----
+
+### Sceptical?
+
+```
+_main:
+  ; snip
+  push    rbp
+  mov rbp, rsp
+  call __Z1fv
+  call __Z1fv
+  call __Z1fv
+  call __Z1fv
+  call __Z1fv
+  call __Z1fv
+  call __Z1fv
+  call __Z1fv
+  call __Z1fv
+  call __Z1fv
+  xor eax, eax
+  pop rbp
+  ret
+```
+
+====================
+
+### So far so good
+
+----
+
+### What if?
+
+```c++
+template <typename ...T>
+struct tuple {
+  // ...
+
+  template <typename N>
+  constexpr decltype(auto) operator[](N const&) {
+    return std::get<N::value>(*this);
+  }
+};
+```
+
+----
+
+### Accessing an element of a tuple: then
+
+```c++
+tuple<int, char, float> values = {1, 'x', 3.4f};
+char x = std::get<1>(values);
+```
+----
+
+### Accessing an element of a tuple: now
+
+```c++
+tuple<int, char, float> values = {1, 'x', 3.4f};
+char x = values[1_c];
+```
+
+====================
+
+### Why stop here?
+
+- `std::ratio`
+- `std::integer_sequence`
+
+==============================================================================
+
+### What are types?
+
+Note:
+This section introduces the type/value unification.
+
+----
+
+### Aren't they values after all?
+
+```cpp
+using result = add_pointer<int>::type;
+```
+
+----
+
+### Let's treat them as such!
+
+```cpp
+class Type {
+  // ...
+};
+
+Type t{...};
+```
+
+====================
+
+### What are metafunctions?
+
+----
+
+### Aren't they functions after all?
+
+```c++
+template <typename T>
+struct add_pointer {
+  using type = T*;
+};
+```
+
+----
+
+### Let's treat them as such!
+
+```c++
+Type add_pointer(Type);
+bool is_pointer(Type);
+bool operator==(Type t, Type u);
+// ...
+
+Type t{...};
+Type p = add_pointer(t);
+assert(is_pointer(p));
+```
+
+====================
+
+### Cool idea, but useless for metaprogramming
+
+====================
+
+### Easy fix: use templates
+
+%%type_unification-Type%%
+
+Note:
+Make explicit the link between this and what we did in the previous section
+with integral constants.
+
+----
+
+### Easy fix: use templates
+
+%%type_unification-metafunction%%
+
+----
+
+### Tadam!
+
+%%type_unification-usage%%
+
+----
+
+### Sugar
+
+%%type_unification-sugar%%
+
+====================
+
+## But what does that buy us?
+
+====================
+
+### Types are now first class citizens!
+
+%%type_unification-first_class%%
+
+====================
+
+### Full language can be used
+
+__Before__
+%%full_language-then%%
+
+----
+
+__After__
+%%full_language-now%%
+
+====================
+
+### Only one library is required
+
+__Before__
+%%onelib-then%%
+
+----
+
+__After__
+%%onelib-now%%
+
+====================
+
+### Unified syntax means more reuse
+#### (Amphibious EDSL using Boost.Proto)
+
+%%proto%%
+
+====================
+
+### Unified syntax means more consistency
+
+__Before__
+%%map-then%%
+
+----
+
+__After__
+%%map-now%%
+
+====================
+
+### So we can represent types as values
+
+----
+
+### But how can we get back the types?
+
+```c++
+auto t = add_pointer(type<int>); // could be a complex type computation
+using T = the-type-represented-by-t;
+// do something useful with T here...
+```
+
+----
+
+### Easy fix: use nested alias
+
+```c++
+template <typename T>
+struct Type {
+  using type = T;
+};
+```
+
+----
+
+### And then `decltype`
+
+```c++
+auto t = add_pointer(type<int>);
+using T = decltype(t)::type;
+static_assert(std::is_same<T, int*>{}, "");
+// do something useful with T here...
+```
+
+====================
+
+### 3 step process
+
+1. Wrap types into `type<...>`
+2. Perform computations
+3. Unwrap with `decltype(...)::type`
+
+----
+
+## Isn't that cumbersome?
+### Not really <!-- .element class="fragment" -->
+
+----
+
+### Only done at some thin boundaries
+
+```c++
+auto t = type<T>;
+auto result = huge_type_computation(t);
+using Result = decltype(result)::type;
+```
+
+----
+
+### Not always required
+
+```c++
+auto t = type<T>;
+auto result = type_computation(t);
+static_assert(result == type<Something>, "");
+```
+
+Note:
+We did not have to do the third step because we did not need the type itself.
+
+----
+
+### Even then, it's not that bad
+
+----
+
+### Finding smallest type: then
+
+%%smallest_type-then%%
+
+----
+
+### Finding smallest type: now
+
+%%smallest_type-now%%
+
+Note:
+Also note that this is a very good example of a short type-only computation,
+which is where we would expect the new paradigm to suffer the most.
+
+====================
+
+### So types are objects
+### What should be their interface? <!-- .element class="fragment" -->
+
+----
+
+### It's precisely `<type_traits>`!
+
+```c++
+add_pointer  -> std::add_pointer
+add_const    -> std::add_const
+add_volatile -> std::add_volatile
+// ...
+
+is_pointer   -> std::is_pointer
+is_const     -> std::is_const
+is_volatile  -> std::is_volatile
+// ...
+
+operator==  -> std::is_same
+// ...
+```
+
+----
+
+### There's a generic lifting process
+
+----
+
+### Let's reconsider:
+
+```c++
+template <typename T>
+Type<T*> add_pointer(Type<T>) { return {}; }
+```
+
+----
+
+### This could also be written as
+
+```c++
+template <typename T>
+auto add_pointer(Type<T>) {
+  return type<typename std::add_pointer<T>::type>;
+}
+```
+
+----
+
+### There's a pattern
+
+```c++
+template <template <typename ...> class F>
+struct Metafunction {
+  template <typename ...T>
+  auto operator()(Type<T> ...) const {
+    return type<
+      typename F<T...>::type
+    >;
+  }
+};
+
+Metafunction<std::add_pointer> add_pointer{};
+
+auto i = type<int>;
+auto i_ptr = add_pointer(i);
+static_assert(is_pointer(i_ptr), "");
+```
+
+----
+
+### Sugar, again
+
+```c++
+template <template <typename ...> class F>
+constexpr Metafunction<F> metafunction{};
+
+auto add_pointer = metafunction<std::add_pointer>;
+auto remove_reference = metafunction<std::remove_reference>;
+auto add_const = metafunction<std::add_const>;
+// ...
+```
+
+====================
+
+### Case study: switch for `boost::any`
+
+%%switch_any-now-usage%%
+
+----
+
+### First
+
+%%switch_any-now-impl1%%
+
+----
+
+### The beast
+
+%%switch_any-now-impl2%%
+
+----
+
+### Processing cases
+
+%%switch_any-now-impl3%%
+
+----
+
+### Base case
+
+%%switch_any-now-impl4%%
+
+----
+
+### About 70 LOC
+
+----
+
+### And your coworkers could understand
+### (mostly) <!-- .element class="fragment" -->
+
+==============================================================================
+
+## My proposal: Hana
+
+- Heterogeneous + type level computations
+- 80+ algorithms
+- 8 heterogeneous containers
+- Improved compile-times
+
+====================
+
+### Working on C++14 compilers
+
+- Clang >= 3.5
+- GCC 5 (almost)
+
+====================
+
+### Newly accepted in Boost!
+#### Soon part of the distribution
+
+====================
+
+## Embrace the future
+## Embrace Hana <!-- .element class="fragment fade-in" -->
+
+====================
+
+# Thank you
+
+<span class="fragment fade-in">
+http://ldionne.com <br>
+http://github.com/ldionne
+</span>
+
+==============================================================================
+
+## Bonus
+
+====================
+
+### Sorting at compile-time: then
+
+%%sorting-then1%%
+
+----
+
+### Sorting at compile-time: then
+
+%%sorting-then2%%
+
+----
+
+### Sorting at compile-time: now
+
+%%sorting-now%%
+
+====================
+
+### Case study: indexed sorting
+
+%%indexed_sort-now-usage1%%
+
+----
+
+### The beast
+
+%%indexed_sort-now-impl%%
+
+----
+
+### With Fusion/MPL ...
+
+%%indexed_sort-then-impl%%
+
+----
+
+### Faking the initial sequence: now
+
+%%indexed_sort-now-usage2%%
+
+----
+
+### Faking the initial sequence: then
+
+%%indexed_sort-then-usage2%%
+
+====================
+
+### `std::common_type` : N3843
+
+%%common_type-N3843%%
+
+----
+
+### `std::common_type` : now
+
+%%common_type-now%%
+
+                </script>
+                </section>
+            </div>
+        </div>
+
+        <script src="lib/js/head.min.js"></script>
+        <script src="js/reveal.js"></script>
+
+        <script>
+            Reveal.initialize({
+                slideNumber: true,
+                history: true,
+                transition: 'slide',
+
+                dependencies: [
+                    { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+                    { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+                    { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+                    { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+                    { src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+                    { src: 'plugin/math/math.js', async: true }
+                ]
+            });
+        </script>
+
+        <!-- Additional javascript for drawing charts. -->
+        <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+        <script type="text/javascript" src="http://code.highcharts.com/highcharts.js"></script>
+        <script type="text/javascript" src="http://code.highcharts.com/modules/data.js"></script>
+        <script type="text/javascript" src="http://code.highcharts.com/modules/exporting.js"></script>
+        <script type="text/javascript" src="js/chart.js"></script>
+        <script type="text/javascript" src="https://cdn.rawgit.com/michael/github/fb54ae3856341ef4bd3acf877ccf24836fc079d9/github.js"></script>
+        <script type="text/javascript">
+          window.onload = function() {
+            var github = new Github({});
+            var hana = github.getRepo('ldionne', 'hana');
+            hana.getRef('heads/datasets', function(err, sha) {
+              var repo = "https://cdn.rawgit.com/ldionne/hana/" + sha + "/release/clang-3.5.0/";
+
+              $(".benchmark-chart").each(function(index, div) {
+                var dataset = div.getAttribute("data-dataset");
+                $.getJSON(repo + dataset, function(options) {
+                  Hana.initChart($(div), options);
+                });
+              });
+            });
+          };
+        </script>
+
+        <!--
+          Some slides contain charts in them. Sometimes, the charts will not
+          be properly centered in the slide. To fix this, slides with the
+          `data-state="haschart"` attribute trigger a reflowing of all the
+          charts inside their div, which is overkill but fixes the problem.
+        -->
+        <script type="text/javascript">
+          Reveal.addEventListener('haschart', function() {
+            Highcharts.charts.forEach(function(chart) {
+              chart.reflow();
+            });
+          }, false);
+        </script>
+
+    </body>
+</html>
