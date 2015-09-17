@@ -346,13 +346,13 @@ boost/mpl/clear.hpp:29:7: error:
 %%error_messages-now%%
 
 ```c++
-boost/hana/fwd/sequence.hpp:602:13: error:
-  static_assert failed "hana::reverse(xs) requires xs to be a Sequence"
-        static_assert(_models<Sequence, typename datatype<Xs>::type>{},
-        ^             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+boost/hana/reverse.hpp:35:9:
+  static_assert failed "hana::reverse(xs) requires 'xs' to be a Sequence"
+        static_assert(Sequence<S>::value,
+        ^             ~~~~~~~~~~~~~~~~~~
 error_messages.cpp:19:24:
   in instantiation of function template specialization
-  'boost::hana::_reverse::operator()<int>' requested here
+  'boost::hana::reverse_t::operator()<int>' requested here
 auto xs = hana::reverse(1);
                        ^
 ```
