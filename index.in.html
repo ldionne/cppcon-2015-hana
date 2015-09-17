@@ -552,21 +552,16 @@ Assembly with -O3
 ```
 _main:
   ; snip
-  push    rbp
-  mov rbp, rsp
-  call __Z1fv
-  call __Z1fv
-  call __Z1fv
-  call __Z1fv
-  call __Z1fv
-  call __Z1fv
-  call __Z1fv
-  call __Z1fv
-  call __Z1fv
-  call __Z1fv
-  xor eax, eax
-  pop rbp
-  ret
+  pushq %rbp
+  movq  %rsp, %rbp
+  callq __Z1fv
+  callq __Z1fv
+  callq __Z1fv
+  callq __Z1fv
+  callq __Z1fv
+  xorl  %eax, %eax
+  popq  %rbp
+  retq
 ```
 
 ====================

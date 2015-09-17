@@ -705,7 +705,7 @@ struct integral_constant {
 __attribute__((noinline)) void f() { }
 
 int main() {
-    int_c<10>.times(f);
+    int_c<5>.times(f);
 }
 ```
 
@@ -713,21 +713,16 @@ Assembly with -O3
 ```
 _main:
   ; snip
-  push    rbp
-  mov rbp, rsp
-  call __Z1fv
-  call __Z1fv
-  call __Z1fv
-  call __Z1fv
-  call __Z1fv
-  call __Z1fv
-  call __Z1fv
-  call __Z1fv
-  call __Z1fv
-  call __Z1fv
-  xor eax, eax
-  pop rbp
-  ret
+  pushq %rbp
+  movq  %rsp, %rbp
+  callq __Z1fv
+  callq __Z1fv
+  callq __Z1fv
+  callq __Z1fv
+  callq __Z1fv
+  xorl  %eax, %eax
+  popq  %rbp
+  retq
 ```
 
 ====================
