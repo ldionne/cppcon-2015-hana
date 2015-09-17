@@ -342,6 +342,25 @@ int main() {
 }
 ```
 
+----
+
+### Introspection: tomorrow
+
+```cpp
+struct Person {
+  BOOST_HANA_DEFINE_STRUCT(Person,
+    (std::string, name),
+    (int, age)
+  );
+};
+
+int main() {
+  Person john{"John", 30};
+  std::string name = at_key(john, "name"_s);
+  int age = at_key(john, "age"_s);
+}
+```
+
 ====================
 
 ### Generating JSON: then
