@@ -4,7 +4,7 @@
 // This is an adapted version of the "Calc1" example in Proto's documentation
 // to work with compile-time integers too.
 
-#include <boost/hana/integral_constant.hpp>
+#include <boost/hana.hpp>
 
 #include <boost/proto/context.hpp>
 #include <boost/proto/core.hpp>

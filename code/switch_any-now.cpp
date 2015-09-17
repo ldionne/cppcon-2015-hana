@@ -18,11 +18,11 @@ namespace hana = boost::hana;
 // sample(switch_any-now-impl1)
 template <typename T>
 auto case_ = [](auto f) {
-  return std::make_pair(hana::type<T>, f);
+  return std::make_pair(hana::type_c<T>, f);
 };
 
-struct _default;
-auto default_ = case_<_default>;
+struct default_t;
+auto default_ = case_<default_t>;
 auto empty = case_<void>;
 // end-sample
 
@@ -42,7 +42,7 @@ Result impl(Any& a, std::type_index const& t, Default& default_,
 {
   using T = typename decltype(case_.first)::type;
   if (t == typeid(T)) {
-    return hana::if_(hana::type<T> == hana::type<void>,
+    return hana::if_(hana::type_c<T> == hana::type_c<void>,
       [](auto& case_, auto& a) {
         return case_.second();
       },
@@ -59,17 +59,17 @@ Result impl(Any& a, std::type_index const& t, Default& default_,
 // sample(switch_any-now-impl2)
 template <typename Result = void, typename Any>
 auto switch_(Any& a) {
-  return [&a](auto ...cases_) -> Result {
-    auto cases = hana::make_tuple(cases_...);
+  return [&a](auto ...c) -> Result {
+    auto cases = hana::make_tuple(c...);
 
     auto default_ = hana::find_if(cases, [](auto const& c) {
-      return c.first == hana::type<_default>;
+      return c.first == hana::type_c<default_t>;
     });
     static_assert(!hana::is_nothing(default_),
       "switch is missing a default_ case");
 
     auto rest = hana::filter(cases, [](auto const& c) {
-      return c.first != hana::type<_default>;
+      return c.first != hana::type_c<default_t>;
     });
 
     return hana::unpack(rest, [&](auto& ...rest) {

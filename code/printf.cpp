@@ -11,9 +11,9 @@ using namespace boost::hana::literals;
 
 // sample(printf-formats)
 auto formats = make_map(
-  make_pair(char_<'i'>, type<int>),
-  make_pair(char_<'f'>, type<double>),
-  make_pair(char_<'s'>, type<char*>)
+  make_pair(char_c<'i'>, type_c<int>),
+  make_pair(char_c<'f'>, type_c<double>),
+  make_pair(char_c<'s'>, type_c<char*>)
 
   // ...
 );
@@ -22,10 +22,10 @@ auto formats = make_map(
 // sample(printf-core)
 template <typename Fmt, typename ...Args>
 int type_safe_printf(Fmt fmt, Args const& ...args) {
-  static_assert(is_a<String>(fmt),
+  static_assert(is_a<string_tag>(fmt),
   "the format string must be a compile-time hana::String");
 
-  auto format_chars = filter(to<Tuple>(fmt), [](auto c) {
+  auto format_chars = filter(to<tuple_tag>(fmt), [](auto c) {
     return contains(formats, c);
   });
 

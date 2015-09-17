@@ -9,10 +9,7 @@
 #include <boost/mpl/pair.hpp>
 #include <boost/mpl/plus.hpp>
 
-#include <boost/hana/constant.hpp>
-#include <boost/hana/core/models.hpp>
-#include <boost/hana/integral_constant.hpp>
-#include <boost/hana/pair.hpp>
+#include <boost/hana.hpp>
 
 #include <cassert>
 #include <type_traits>
@@ -20,7 +17,7 @@ namespace hana = boost::hana;
 
 
 template <typename T, typename = std::enable_if_t<
-  !hana::models<hana::Constant, T>()
+  !hana::Constant<T>::value
 >>
 constexpr T sqrt(T x) {
   T inf = 0, sup = (x == 1 ? 1 : x/2);
@@ -35,10 +32,10 @@ constexpr T sqrt(T x) {
 }
 
 template <typename T, typename = std::enable_if_t<
-  hana::models<hana::Constant, T>()
+  hana::Constant<T>::value
 >>
 constexpr auto sqrt(T const&) {
-  return hana::integral_constant<typename T::value_type, sqrt(T::value)>;
+  return hana::integral_c<typename T::value_type, sqrt(T::value)>;
 }
 
 
@@ -84,12 +81,12 @@ using namespace boost::hana;
 using namespace boost::hana::literals;
 
 template <typename X, typename Y>
-struct _point {
+struct point_t {
   X x;
   Y y;
 };
 template <typename X, typename Y>
-constexpr _point<X, Y> point(X x, Y y) { return {x, y}; }
+constexpr point_t<X, Y> point(X x, Y y) { return {x, y}; }
 
 // sample(arithmetic-now)
 template <typename P1, typename P2>

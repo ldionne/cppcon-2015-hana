@@ -7,8 +7,7 @@
 #include <boost/mpl/sizeof.hpp>
 #include <boost/mpl/vector.hpp>
 
-#include <boost/hana/tuple.hpp>
-#include <boost/hana/type.hpp>
+#include <boost/hana.hpp>
 
 #include <type_traits>
 

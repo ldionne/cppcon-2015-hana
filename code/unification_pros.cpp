@@ -39,13 +39,13 @@ using namespace boost::hana;
 using namespace boost::hana::traits;
 
 // sample(full_language-now)
-auto ts = make_tuple(type<int>, type<char&>, type<void*>);
+auto ts = make_tuple(type_c<int>, type_c<char&>, type_c<void*>);
 auto us = filter(ts, [](auto t) {
   return or_(is_pointer(t), is_reference(t));
 });
 // end-sample
 
-BOOST_HANA_CONSTANT_CHECK(us == make_tuple(type<char&>, type<void*>));
+BOOST_HANA_CONSTANT_CHECK(us == make_tuple(type_c<char&>, type_c<void*>));
 
 }{
 
@@ -84,7 +84,7 @@ auto ws = filter(vs, [](auto t) {
 });
 // end-sample
 
-BOOST_HANA_CONSTANT_CHECK(us == make_tuple(type<char&>, type<void*>));
+BOOST_HANA_CONSTANT_CHECK(us == make_tuple(type_c<char&>, type_c<void*>));
 BOOST_HANA_RUNTIME_CHECK(ws == make_tuple(1, 'c'));
 
 }

@@ -10,8 +10,8 @@ using namespace boost::hana::literals;
 
 // sample(indexed_sort-now-impl)
 auto indexed_sort = [](auto list, auto predicate) {
-  auto indices = to<Tuple>(range(0_c, size(list)));
-  auto indexed_list = zip.with(make_pair, list, indices);
+  auto indices = to<tuple_tag>(make_range(0_c, size(list)));
+  auto indexed_list = zip_with(make_pair, list, indices);
   auto sorted = sort(indexed_list, [&](auto const& x, auto const& y) {
     return predicate(first(x), first(y));
   });
@@ -35,7 +35,7 @@ static_assert(indices == tuple_c<std::size_t, 2, 1, 0>, "");
 // end-sample
 
 // sample(indexed_sort-now-usage2)
-using Sequence = decltype(unpack(sorted, template_<_tuple>))::type;
+using Sequence = decltype(unpack(sorted, template_<tuple>))::type;
 auto index_map = second(indexed_sort(indices, less));
 
 Sequence s;

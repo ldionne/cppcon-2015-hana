@@ -1,10 +1,9 @@
 // Copyright Louis Dionne 2015
 // Distributed under the Boost Software License, Version 1.0.
 
+#include <boost/hana.hpp>
 #include <boost/hana/ext/std/type_traits.hpp>
 #include <boost/hana/ext/std/utility.hpp>
-#include <boost/hana/tuple.hpp>
-#include <boost/hana/type.hpp>
 
 #include <type_traits>
 using namespace boost::hana;
@@ -19,8 +18,8 @@ template <typename ...>
 auto common_type_impl = nothing;
 
 template <typename T1, typename ...Tn>
-auto common_type_impl<T1, Tn...> = monadic_fold<Maybe>(
-  tuple_t<Tn...>, type<std::decay_t<T1>>,
+auto common_type_impl<T1, Tn...> = monadic_fold_left<optional_tag>(
+  tuple_t<Tn...>, type_c<std::decay_t<T1>>,
   sfinae([](auto t, auto u) -> decltype(
     traits::decay(true ? traits::declval(t) : traits::declval(u))
   ) { return {}; })

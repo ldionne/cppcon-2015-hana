@@ -10,29 +10,29 @@ using namespace boost::hana;
 
 struct concat_strings {
   template <char ...s1, char ...s2>
-  constexpr auto operator()(_string<s1...>, _string<s2...>) const
-  { return string<s1..., s2...>; }
+  constexpr auto operator()(string<s1...>, string<s2...>) const
+  { return string_c<s1..., s2...>; }
 };
 
 template <typename S>
 constexpr auto concat_all(S s) {
-  return fold.left(s, string<>, concat_strings{});
+  return fold_left(s, string_c<>, concat_strings{});
 }
 
 
 
 constexpr auto formats = make_map(
-  make_pair(type<int>, string<'%', 'd'>),
-  make_pair(type<double>, string<'%', 'f'>),
-  make_pair(type<char const*>, string<'%', 's'>)
+  make_pair(type_c<int>, string_c<'%', 'd'>),
+  make_pair(type_c<double>, string_c<'%', 'f'>),
+  make_pair(type_c<char const*>, string_c<'%', 's'>)
 );
 
-constexpr struct _done { } done{};
+constexpr struct done_t { } done{};
 
 template <typename F, typename ...Tokens>
 struct unstream_t {
   F f;
-  _tuple<Tokens...> tokens;
+  tuple<Tokens...> tokens;
 
   template <typename Token>
   friend constexpr
@@ -44,17 +44,17 @@ struct unstream_t {
     };
   }
 
-  friend auto operator<<(unstream_t&& self, _done) {
+  friend auto operator<<(unstream_t&& self, done_t) {
     auto fmt = concat_all(
       adjust_if(self.tokens,
-        compose(not_, is_a<String>),
+        compose(not_, is_a<string_tag>),
         [](auto&& token) {
           return formats[decltype_(token)];
         }
       )
     );
 
-    auto args = remove_if(std::move(self.tokens), is_a<String>);
+    auto args = remove_if(std::move(self.tokens), is_a<string_tag>);
 
     return unpack(std::move(args), [&](auto&& ...args) {
       return std::move(self.f)(

@@ -1,7 +1,7 @@
 // Copyright Louis Dionne 2015
 // Distributed under the Boost Software License, Version 1.0.
 
-#include <boost/hana/type.hpp>
+#include <boost/hana.hpp>
 using namespace boost::hana;
 
 

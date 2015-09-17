@@ -8,38 +8,38 @@ namespace hana = boost::hana;
 
 template <typename CharT, CharT ...s>
 constexpr auto operator"" _s()
-{ return hana::string<s...>; }
+{ return hana::string_c<s...>; }
 
 
 template <typename ...Options>
 struct option_maker {
-  hana::_tuple<Options...> options;
+  hana::tuple<Options...> options;
 };
 
 
 
 template <typename ...Attributes>
-struct _option { hana::_tuple<Attributes...> attributes; };
+struct option_t { hana::tuple<Attributes...> attributes; };
 
 template <typename ...Attributes>
 auto option(Attributes ...attributes)
-{ return _option<Attributes...>{{attributes...}}; }
+{ return option_t<Attributes...>{{attributes...}}; }
 
 
 template <typename Description>
-struct _banner { Description description; };
+struct banner_t { Description description; };
 
 template <typename Description>
 auto banner(Description description)
-{ return _banner<Description>{description}; }
+{ return banner_t<Description>{description}; }
 
 
 template <typename ...Attributes>
-struct _check { hana::_tuple<Attributes...> attributes; };
+struct check_t { hana::tuple<Attributes...> attributes; };
 
 template <typename ...Attributes>
 auto check(Attributes ...attributes)
-{ return _check<Attributes...>{{attributes...}}; }
+{ return check_t<Attributes...>{{attributes...}}; }
 
 
 
@@ -65,7 +65,7 @@ auto options = option_maker<>{} | banner(
       opts.die("volume must be non-negative");
   })
 
-| option(name("file"_s), description("Extra data filename to read in"_s), hana::type<std::string>)
+| option(name("file"_s), description("Extra data filename to read in"_s), hana::type_c<std::string>)
 | check([](auto opts) {
     if (opts["file"_s] && !opts["file"_s].exists())
       opts.die("file must exists");

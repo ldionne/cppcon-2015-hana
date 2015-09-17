@@ -1,10 +1,7 @@
 // Copyright Louis Dionne 2015
 // Distributed under the Boost Software License, Version 1.0.
 
-#include <boost/hana/string.hpp>
-#include <boost/hana/struct.hpp>
-#include <boost/hana/comparable.hpp>
-#include <boost/hana/struct_macros.hpp>
+#include <boost/hana.hpp>
 
 #include <cassert>
 #include <string>

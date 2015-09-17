@@ -1,10 +1,9 @@
 // Copyright Louis Dionne 2015
 // Distributed under the Boost Software License, Version 1.0.
 
+#include <boost/hana.hpp>
 #include <boost/hana/ext/std/type_traits.hpp>
 #include <boost/hana/ext/std/utility.hpp>
-#include <boost/hana/tuple.hpp>
-#include <boost/hana/type.hpp>
 
 #include <meta/meta.hpp>
 
@@ -95,29 +94,29 @@ template <typename T, typename U>
 struct common_type<T, U>
   : std::conditional_t<std::is_same<std::decay_t<T>, T>{} &&
                        std::is_same<std::decay_t<U>, U>{},
-      decltype(builtin_common_t(type<T>, type<U>)),
+      decltype(builtin_common_t(type_c<T>, type_c<U>)),
       common_type<std::decay_t<T>, std::decay_t<U>>
   >
 { };
 #endif
 
 // sample(sfinae_common_type-hana)
-auto builtin_common_t = sfinae([](auto t, auto u) -> decltype(type<
+auto builtin_common_t = sfinae([](auto t, auto u) -> type<
   std::decay_t<decltype(true ? traits::declval(t) : traits::declval(u))>
->) { return {}; });
+> { return {}; });
 
 template <typename ...T>
 struct common_type { };
 
 template <typename T, typename U>
 struct common_type<T, U>
-  : decltype(builtin_common_t(type<T>, type<U>))
+  : decltype(builtin_common_t(type_c<T>, type_c<U>))
 { };
 
 template <typename T1, typename ...Tn>
 struct common_type<T1, Tn...>
-  : decltype(monadic_fold<Maybe>(tuple_t<Tn...>,
-      type<std::decay_t<T1>>,
+  : decltype(monadic_fold_left<optional_tag>(tuple_t<Tn...>,
+      type_c<std::decay_t<T1>>,
       sfinae(metafunction<common_type>)
     ))
 { };

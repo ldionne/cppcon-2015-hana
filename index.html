@@ -1,411 +1,1647 @@
 <!doctype html>
 <html lang="en">
 
-	<head>
-		<meta charset="utf-8">
+    <head>
+        <meta charset="utf-8">
 
-		<title>reveal.js - The HTML Presentation Framework</title>
+        <title>C++ metaprogramming: a paradigm shift</title>
 
-		<meta name="description" content="A framework for easily creating beautiful presentations using HTML">
-		<meta name="author" content="Hakim El Hattab">
+        <meta name="author" content="Louis Dionne">
 
-		<meta name="apple-mobile-web-app-capable" content="yes" />
-		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
 
-		<link rel="stylesheet" href="css/reveal.css">
-		<link rel="stylesheet" href="css/theme/black.css" id="theme">
+        <link rel="stylesheet" href="css/reveal.css">
+        <link rel="stylesheet" href="css/theme/league.css" id="theme">
+        <link rel="stylesheet" href="css/custom.css">
 
-		<!-- Code syntax highlighting -->
-		<link rel="stylesheet" href="lib/css/zenburn.css">
+        <!-- Code syntax highlighting -->
+        <link rel="stylesheet" href="lib/css/zenburn.css">
 
-		<!-- Printing and PDF exports -->
-		<script>
-			var link = document.createElement( 'link' );
-			link.rel = 'stylesheet';
-			link.type = 'text/css';
-			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
-			document.getElementsByTagName( 'head' )[0].appendChild( link );
-		</script>
+        <!-- Printing and PDF exports -->
+        <script>
+            var link = document.createElement( 'link' );
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+            document.getElementsByTagName( 'head' )[0].appendChild( link );
+        </script>
 
-		<!--[if lt IE 9]>
-		<script src="lib/js/html5shiv.js"></script>
-		<![endif]-->
-	</head>
+        <!--[if lt IE 9]>
+        <script src="lib/js/html5shiv.js"></script>
+        <![endif]-->
+    </head>
 
-	<body>
+    <body>
+        <div class="reveal">
+            <div class="slides">
+                <section data-markdown=""
+                         data-separator="^====+$"
+                         data-separator-vertical="^----+$"
+                         data-notes="^Note:">
+                <script type="text/template">
 
-		<div class="reveal">
+## C++ metaprogramming
+<h3 style="opacity: 0.8">a paradigm shift</h3>
+<br>
+Louis Dionne, CppCon 2015
 
-			<!-- Any section element inside of this container is displayed as a slide -->
-			<div class="slides">
-				<section>
-					<h1>Reveal.js</h1>
-					<h3>The HTML Presentation Framework</h3>
-					<p>
-						<small>Created by <a href="http://hakim.se">Hakim El Hattab</a> / <a href="http://twitter.com/hakimel">@hakimel</a></small>
-					</p>
-				</section>
+==============================================================================
 
-				<section>
-					<h2>Hello There</h2>
-					<p>
-						reveal.js enables you to create beautiful interactive slide decks using HTML. This presentation will show you examples of what it can do.
-					</p>
-				</section>
+## Quadrants of computation in C++
 
-				<!-- Example of nested vertical slides -->
-				<section>
-					<section>
-						<h2>Vertical Slides</h2>
-						<p>Slides can be nested inside of each other.</p>
-						<p>Use the <em>Space</em> key to navigate through all slides.</p>
-						<br>
-						<a href="#" class="navigate-down">
-							<img width="178" height="238" data-src="https://s3.amazonaws.com/hakim-static/reveal-js/arrow.png" alt="Down arrow">
-						</a>
-					</section>
-					<section>
-						<h2>Basement Level 1</h2>
-						<p>Nested slides are useful for adding additional detail underneath a high level horizontal slide.</p>
-					</section>
-					<section>
-						<h2>Basement Level 2</h2>
-						<p>That's it, time to go back up.</p>
-						<br>
-						<a href="#/2">
-							<img width="178" height="238" data-src="https://s3.amazonaws.com/hakim-static/reveal-js/arrow.png" alt="Up arrow" style="transform: rotate(180deg); -webkit-transform: rotate(180deg);">
-						</a>
-					</section>
-				</section>
+<!--
+If needed, define new MathJax commands just below this to avoid seeing
+them load on the first slide.
+-->
 
-				<section>
-					<h2>Slides</h2>
-					<p>
-						Not a coder? Not a problem. There's a fully-featured visual editor for authoring these, try it out at <a href="http://slides.com" target="_blank">http://slides.com</a>.
-					</p>
-				</section>
+====================
 
-				<section>
-					<h2>Point of View</h2>
-					<p>
-						Press <strong>ESC</strong> to enter the slide overview.
-					</p>
-					<p>
-						Hold down alt and click on any element to zoom in on it using <a href="http://lab.hakim.se/zoom-js">zoom.js</a>. Alt + click anywhere to zoom back out.
-					</p>
-				</section>
+### Runtime computations (classic)
 
-				<section>
-					<h2>Touch Optimized</h2>
-					<p>
-						Presentations look great on touch devices, like mobile phones and tablets. Simply swipe through your slides.
-					</p>
-				</section>
+----
 
-				<section data-markdown>
-					<script type="text/template">
-						## Markdown support
+### Runtime sequences
 
-						Write content using inline or external Markdown.
-						Instructions and more info available in the [readme](https://github.com/hakimel/reveal.js#markdown).
+```c++
+std::vector<int> ints{1, 2, 3, 4};
+```
 
-						```
-						<section data-markdown>
-						  ## Markdown support
+----
 
-						  Write content using inline or external Markdown.
-						  Instructions and more info available in the [readme](https://github.com/hakimel/reveal.js#markdown).
-						</section>
-						```
-					</script>
-				</section>
+### Runtime functions
 
-				<section>
-					<section id="fragments">
-						<h2>Fragments</h2>
-						<p>Hit the next arrow...</p>
-						<p class="fragment">... to step through ...</p>
-						<p><span class="fragment">... a</span> <span class="fragment">fragmented</span> <span class="fragment">slide.</span></p>
-
-						<aside class="notes">
-							This slide has fragments which are also stepped through in the notes window.
-						</aside>
-					</section>
-					<section>
-						<h2>Fragment Styles</h2>
-						<p>There's different types of fragments, like:</p>
-						<p class="fragment grow">grow</p>
-						<p class="fragment shrink">shrink</p>
-						<p class="fragment fade-out">fade-out</p>
-						<p class="fragment current-visible">current-visible</p>
-						<p class="fragment highlight-red">highlight-red</p>
-						<p class="fragment highlight-blue">highlight-blue</p>
-					</section>
-				</section>
-
-				<section id="transitions">
-					<h2>Transition Styles</h2>
-					<p>
-						You can select from different transitions, like: <br>
-						<a href="?transition=none#/transitions">None</a> -
-						<a href="?transition=fade#/transitions">Fade</a> -
-						<a href="?transition=slide#/transitions">Slide</a> -
-						<a href="?transition=convex#/transitions">Convex</a> -
-						<a href="?transition=concave#/transitions">Concave</a> -
-						<a href="?transition=zoom#/transitions">Zoom</a>
-					</p>
-				</section>
-
-				<section id="themes">
-					<h2>Themes</h2>
-					<p>
-						reveal.js comes with a few themes built in: <br>
-						<!-- Hacks to swap themes after the page has loaded. Not flexible and only intended for the reveal.js demo deck. -->
-						<a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/black.css'); return false;">Black (default)</a> -
-						<a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/white.css'); return false;">White</a> -
-						<a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/league.css'); return false;">League</a> -
-						<a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/sky.css'); return false;">Sky</a> -
-						<a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/beige.css'); return false;">Beige</a> -
-						<a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/simple.css'); return false;">Simple</a> <br>
-						<a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/serif.css'); return false;">Serif</a> -
-						<a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/blood.css'); return false;">Blood</a> -
-						<a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/night.css'); return false;">Night</a> -
-						<a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/moon.css'); return false;">Moon</a> -
-						<a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/solarized.css'); return false;">Solarized</a>
-					</p>
-				</section>
-
-				<section>
-					<section data-background="#dddddd">
-						<h2>Slide Backgrounds</h2>
-						<p>
-							Set <code>data-background="#dddddd"</code> on a slide to change the background color. All CSS color formats are supported.
-						</p>
-						<a href="#" class="navigate-down">
-							<img width="178" height="238" data-src="https://s3.amazonaws.com/hakim-static/reveal-js/arrow.png" alt="Down arrow">
-						</a>
-					</section>
-					<section data-background="https://s3.amazonaws.com/hakim-static/reveal-js/image-placeholder.png">
-						<h2>Image Backgrounds</h2>
-						<pre><code>&lt;section data-background="image.png"&gt;</code></pre>
-					</section>
-					<section data-background="https://s3.amazonaws.com/hakim-static/reveal-js/image-placeholder.png" data-background-repeat="repeat" data-background-size="100px">
-						<h2>Tiled Backgrounds</h2>
-						<pre><code style="word-wrap: break-word;">&lt;section data-background="image.png" data-background-repeat="repeat" data-background-size="100px"&gt;</code></pre>
-					</section>
-					<section data-background-video="https://s3.amazonaws.com/static.slid.es/site/homepage/v1/homepage-video-editor.mp4,https://s3.amazonaws.com/static.slid.es/site/homepage/v1/homepage-video-editor.webm" data-background-color="#000000">
-						<div style="background-color: rgba(0, 0, 0, 0.9); color: #fff; padding: 20px;">
-							<h2>Video Backgrounds</h2>
-							<pre><code style="word-wrap: break-word;">&lt;section data-background-video="video.mp4,video.webm"&gt;</code></pre>
-						</div>
-					</section>
-					<section data-background="http://i.giphy.com/90F8aUepslB84.gif">
-						<h2>... and GIFs!</h2>
-					</section>
-				</section>
-
-				<section data-transition="slide" data-background="#4d7e65" data-background-transition="zoom">
-					<h2>Background Transitions</h2>
-					<p>
-						Different background transitions are available via the backgroundTransition option. This one's called "zoom".
-					</p>
-					<pre><code>Reveal.configure({ backgroundTransition: 'zoom' })</code></pre>
-				</section>
-
-				<section data-transition="slide" data-background="#b5533c" data-background-transition="zoom">
-					<h2>Background Transitions</h2>
-					<p>
-						You can override background transitions per-slide.
-					</p>
-					<pre><code style="word-wrap: break-word;">&lt;section data-background-transition="zoom"&gt;</code></pre>
-				</section>
-
-				<section>
-					<h2>Pretty Code</h2>
-					<pre><code data-trim contenteditable>
-function linkify( selector ) {
-  if( supports3DTransforms ) {
-
-    var nodes = document.querySelectorAll( selector );
-
-    for( var i = 0, len = nodes.length; i &lt; len; i++ ) {
-      var node = nodes[i];
-
-      if( !node.className ) {
-        node.className += ' roll';
-      }
-    }
-  }
+```c++
+std::string f(int i) {
+  return std::to_string(i * i);
 }
-					</code></pre>
-					<p>Code syntax highlighting courtesy of <a href="http://softwaremaniacs.org/soft/highlight/en/description/">highlight.js</a>.</p>
-				</section>
 
-				<section>
-					<h2>Marvelous List</h2>
-					<ul>
-						<li>No order here</li>
-						<li>Or here</li>
-						<li>Or here</li>
-						<li>Or here</li>
-					</ul>
-				</section>
+std::string nine = f(3);
+```
 
-				<section>
-					<h2>Fantastic Ordered List</h2>
-					<ol>
-						<li>One is smaller than...</li>
-						<li>Two is smaller than...</li>
-						<li>Three!</li>
-					</ol>
-				</section>
+----
 
-				<section>
-					<h2>Tabular Tables</h2>
-					<table>
-						<thead>
-							<tr>
-								<th>Item</th>
-								<th>Value</th>
-								<th>Quantity</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td>Apples</td>
-								<td>$1</td>
-								<td>7</td>
-							<tr>
-							<tr>
-								<td>Lemonade</td>
-								<td>$2</td>
-								<td>18</td>
-							<tr>
-							<tr>
-								<td>Bread</td>
-								<td>$3</td>
-								<td>2</td>
-							<tr>
-						</tbody>
-					</table>
-				</section>
+### Runtime algorithms
 
-				<section>
-					<h2>Clever Quotes</h2>
-					<p>
-						These guys come in two forms, inline: <q cite="http://searchservervirtualization.techtarget.com/definition/Our-Favorite-Technology-Quotations">
-						&ldquo;The nice thing about standards is that there are so many to choose from&rdquo;</q> and block:
-					</p>
-					<blockquote cite="http://searchservervirtualization.techtarget.com/definition/Our-Favorite-Technology-Quotations">
-						&ldquo;For years there has been a theory that millions of monkeys typing at random on millions of typewriters would
-						reproduce the entire works of Shakespeare. The Internet has proven this theory to be untrue.&rdquo;
-					</blockquote>
-				</section>
+```c++
+std::vector<std::string> strings;
+std::transform(ints.begin(), ints.end(),
+               std::back_inserter(strings), f);
+```
 
-				<section>
-					<h2>Intergalactic Interconnections</h2>
-					<p>
-						You can link between slides internally,
-						<a href="#/2/3">like this</a>.
-					</p>
-				</section>
+====================
 
-				<section>
-					<h2>Speaker View</h2>
-					<p>There's a <a href="https://github.com/hakimel/reveal.js#speaker-notes">speaker view</a>. It includes a timer, preview of the upcoming slide as well as your speaker notes.</p>
-					<p>Press the <em>S</em> key to try it out.</p>
+### `constexpr` computations
 
-					<aside class="notes">
-						Oh hey, these are some notes. They'll be hidden in your presentation, but you can see them if you open the speaker notes window (hit 's' on your keyboard).
-					</aside>
-				</section>
+----
 
-				<section>
-					<h2>Export to PDF</h2>
-					<p>Presentations can be <a href="https://github.com/hakimel/reveal.js#pdf-export">exported to PDF</a>, here's an example:</p>
-					<iframe src="//www.slideshare.net/slideshow/embed_code/42840540" width="445" height="355" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:3px solid #666; margin-bottom:5px; max-width: 100%;" allowfullscreen> </iframe>
-				</section>
+### `constexpr` sequences
 
-				<section>
-					<h2>Global State</h2>
-					<p>
-						Set <code>data-state="something"</code> on a slide and <code>"something"</code>
-						will be added as a class to the document element when the slide is open. This lets you
-						apply broader style changes, like switching the page background.
-					</p>
-				</section>
+```c++
+constexpr std::array<int, 4> ints{1, 2, 3, 4};
+```
 
-				<section data-state="customevent">
-					<h2>State Events</h2>
-					<p>
-						Additionally custom events can be triggered on a per slide basis by binding to the <code>data-state</code> name.
-					</p>
-					<pre><code class="javascript" data-trim contenteditable style="font-size: 18px;">
-Reveal.addEventListener( 'customevent', function() {
-	console.log( '"customevent" has fired' );
-} );
-					</code></pre>
-				</section>
+----
 
-				<section>
-					<h2>Take a Moment</h2>
-					<p>
-						Press B or . on your keyboard to pause the presentation. This is helpful when you're on stage and want to take distracting slides off the screen.
-					</p>
-				</section>
+### `constexpr` functions
 
-				<section>
-					<h2>Much more</h2>
-					<ul>
-						<li>Right-to-left support</li>
-						<li><a href="https://github.com/hakimel/reveal.js#api">Extensive JavaScript API</a></li>
-						<li><a href="https://github.com/hakimel/reveal.js#auto-sliding">Auto-progression</a></li>
-						<li><a href="https://github.com/hakimel/reveal.js#parallax-background">Parallax backgrounds</a></li>
-						<li><a href="https://github.com/hakimel/reveal.js#keyboard-bindings">Custom keyboard bindings</a></li>
-					</ul>
-				</section>
+```c++
+constexpr int factorial(int n) {
+  return n == 0 ? 1 : n * factorial(n - 1);
+}
 
-				<section style="text-align: left;">
-					<h1>THE END</h1>
-					<p>
-						- <a href="http://slides.com">Try the online editor</a> <br>
-						- <a href="https://github.com/hakimel/reveal.js">Source code &amp; documentation</a>
-					</p>
-				</section>
+constexpr int six = factorial(3);
+```
 
-			</div>
+----
 
-		</div>
+### `constexpr` algorithms
 
-		<script src="lib/js/head.min.js"></script>
-		<script src="js/reveal.js"></script>
+```c++
+template <typename T, std::size_t N, typename F>
+  constexpr std::array<std::result_of_t<F(T)>, N>
+transform(std::array<T, N> array, F f) {
+  // ...
+}
 
-		<script>
+constexpr std::array<int, 4> ints{1, 2, 3, 4};
+constexpr std::array<int, 4> facts = transform(ints, factorial);
+```
 
-			// Full list of configuration options available at:
-			// https://github.com/hakimel/reveal.js#configuration
-			Reveal.initialize({
-				controls: true,
-				progress: true,
-				history: true,
-				center: true,
+====================
 
-				transition: 'slide', // none/fade/slide/convex/concave/zoom
+### Heterogeneous computations (Fusion)
 
-				// Optional reveal.js plugins
-				dependencies: [
-					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
-					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
-					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
-					{ src: 'plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
-					{ src: 'plugin/zoom-js/zoom.js', async: true },
-					{ src: 'plugin/notes/notes.js', async: true }
-				]
-			});
+----
 
-		</script>
+### Heterogeneous sequences
 
-	</body>
+```c++
+fusion::vector<int, std::string, float> seq{1, "abc", 3.4f};
+```
+
+----
+
+### Heterogeneous functions
+
+```c++
+struct to_string {
+  template <typename T>
+  std::string operator()(T t) const {
+    std::stringstream ss;
+    ss << t;
+    return ss.str();
+  }
+};
+
+std::string three = to_string{}(3);
+std::string pi = to_string{}(3.14159);
+```
+
+----
+
+### Heterogeneous algorithms
+
+```c++
+fusion::vector<int, std::string, float> seq{1, "abc", 3.4f};
+fusion::vector<std::string, std::string, std::string> strings =
+                fusion::transform(seq, to_string{});
+```
+
+====================
+
+### Type-level computations (MPL)
+
+----
+
+### Type-level sequences
+
+```c++
+using seq = mpl::vector<int, char, float, void>;
+```
+
+----
+
+### Type-level functions
+
+```c++
+template <typename T>
+struct add_const_pointer {
+  using type = T const*;
+};
+
+using result = add_const_pointer<int>::type;
+```
+
+----
+
+### Type-level algorithms
+
+```c++
+using seq = mpl::vector<int, char, float, void>;
+using pointers = mpl::transform<seq,
+                      mpl::quote1<add_const_pointer>>::type;
+```
+
+====================
+
+### Note
+
+```c++
+                    fusion::vector != mpl::vector
+```
+
+----
+
+### Consider
+
+```c++
+mpl::vector<int, void, char>{} // ok
+
+// error: field has incomplete type void
+fusion::vector<int, void, char>{}
+```
+
+====================
+
+## Claim
+### Type-level $\;\subset\;$ heterogeneous <!-- .element class="fragment" -->
+
+==============================================================================
+
+## Why bother?
+
+Note:
+This section contains a couple of motivating examples to pique the curiosity.
+The examples should be skimmed over to avoid losing time and explaining
+details that will be covered later.
+
+====================
+
+### C++14 is a serious game changer
+#### $\rightarrow$ We can do better now
+
+====================
+
+### See for yourself
+
+====================
+
+### Checking for a member: then
+
+```cpp
+template <typename T, typename = decltype(&T::xxx)>
+static std::true_type has_xxx_impl(int);
+
+template <typename T>
+static std::false_type has_xxx_impl(...);
+
+template <typename T>
+struct has_xxx
+  : decltype(has_xxx_impl<T>(int{}))
+{ };
+
+struct Foo { int xxx; };
+static_assert(has_xxx<Foo>::value, "");
+```
+
+----
+
+### Checking for a member: soon
+
+```cpp
+template <typename T, typename = void>
+struct has_xxx
+  : std::false_type
+{ };
+
+template <typename T>
+struct has_xxx<T, std::void_t<decltype(&T::xxx)>>
+  : std::true_type
+{ };
+
+struct Foo { int xxx; };
+static_assert(has_xxx<Foo>::value, "");
+```
+
+----
+
+### Checking for a member: what it should be
+
+```cpp
+auto has_xxx = is_valid([](auto t) -> decltype(t.xxx) {});
+
+struct Foo { int xxx; };
+Foo foo{1};
+
+static_assert(has_xxx(foo), "");
+static_assert(!has_xxx("abcdef"), "");
+```
+
+====================
+
+### Introspection: then
+
+```cpp
+namespace keys {
+  struct name;
+  struct age;
+}
+
+BOOST_FUSION_DEFINE_ASSOC_STRUCT(
+  /* global scope */, Person,
+  (std::string, name, keys::name)
+  (int, age, keys::age)
+)
+
+int main() {
+    Person john{"John", 30};
+    std::string name = at_key<keys::name>(john);
+    int age = at_key<keys::age>(john);
+}
+```
+
+----
+
+### Introspection: now
+
+```cpp
+struct Person {
+  BOOST_HANA_DEFINE_STRUCT(Person,
+    (std::string, name),
+    (int, age)
+  );
+};
+
+int main() {
+  Person john{"John", 30};
+  std::string name = at_key(john, BOOST_HANA_STRING("name"));
+  int age = at_key(john, BOOST_HANA_STRING("age"));
+}
+```
+
+====================
+
+### Generating JSON: then
+
+```c++
+// sorry, not going to implement this
+```
+
+----
+
+### Generating JSON: now
+
+```cpp
+struct Person {
+  BOOST_HANA_DEFINE_STRUCT(Person,
+    (std::string, name),
+    (int, age)
+  );
+};
+
+Person joe{"Joe", 30};
+std::cout << to_json(make_tuple(1, 'c', joe));
+```
+
+__Output__:
+```json
+[1, "c", {"name" : "Joe", "age" : 30}]
+```
+
+----
+
+### Handle base types
+
+```cpp
+std::string quote(std::string s) { return "\"" + s + "\""; }
+
+template <typename T>
+auto to_json(T const& x) -> decltype(std::to_string(x)) {
+  return std::to_string(x);
+}
+
+std::string to_json(char c) { return quote({c}); }
+std::string to_json(std::string s) { return quote(s); }
+```
+
+----
+
+### Handle `Sequences`
+
+```cpp
+template <typename Xs>
+  std::enable_if_t<Sequence<Xs>::value,
+std::string> to_json(Xs const& xs) {
+  auto json = transform(xs, [](auto const& x) {
+    return to_json(x);
+  });
+
+  return "[" + join(std::move(json), ", ") + "]";
+}
+```
+
+----
+
+### Handle `Structs`
+
+```cpp
+template <typename T>
+  std::enable_if_t<Struct<T>::value,
+std::string> to_json(T const& x) {
+  auto json = transform(keys(x), [&](auto name) {
+    auto const& member = at_key(x, name);
+    return quote(to<char const*>(name)) + " : " + to_json(member);
+  });
+
+  return "{" + join(std::move(json), ", ") + "}";
+}
+```
+
+====================
+
+## Still not convinced?
+### Here's more
+
+====================
+
+### Error messages: then
+
+```cpp
+using xs = mpl::reverse<mpl::int_<1>>::type;
+```
+
+```c++
+boost/mpl/clear.hpp:29:7: error:
+  implicit instantiation of undefined template
+  'boost::mpl::clear_impl<mpl_::integral_c_tag>::apply<mpl_::int_<1> >'
+    : clear_impl< typename sequence_tag<Sequence>::type >
+      ^
+```
+
+----
+
+### Error messages: now
+
+```cpp
+auto xs = hana::reverse(1);
+```
+
+```c++
+boost/hana/fwd/sequence.hpp:602:13: error:
+  static_assert failed "hana::reverse(xs) requires xs to be a Sequence"
+        static_assert(_models<Sequence, typename datatype<Xs>::type>{},
+        ^             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+error_messages.cpp:19:24:
+  in instantiation of function template specialization
+  'boost::hana::_reverse::operator()<int>' requested here
+auto xs = hana::reverse(1);
+                       ^
+```
+
+====================
+
+### Compile-times: then and now
+
+<!-- .slide: data-state="haschart" -->
+<div class="benchmark-chart" data-dataset="benchmark.including.compile.json"></div>
+
+----
+
+<!-- .slide: data-state="haschart" -->
+<div class="benchmark-chart" data-dataset="benchmark.transform.compile.json"></div>
+
+====================
+
+## We must rethink metaprogramming
+
+====================
+
+## But how?
+### Here's my take <!-- .element class="fragment fade-in" -->
+
+Note:
+Hopefully, the audience should be convinced by now that there's a better way
+to write metaprograms. My goal is now to convince them that I found it.
+
+==============================================================================
+
+### What is an `integral_constant`?
+
+```c++
+template<class T, T v>
+struct integral_constant {
+    static constexpr T value = v;
+    typedef T value_type;
+    typedef integral_constant type;
+    constexpr operator value_type() const noexcept { return value; }
+    constexpr value_type operator()() const noexcept { return value; }
+};
+```
+
+Note:
+This section introduces extensions to `std::integral_constant` that follow
+the general philosophy of the paradigm shift. I am preparing the grounds for
+the next section, which will introduce the type/value unification per-se.
+
+----
+
+### A type-level encoding of a `constexpr` value
+
+```c++
+using one = integral_constant<int, 1>;
+```
+
+----
+
+### A `constexpr`-preserving object
+
+```c++
+template <typename T>
+void f(T t) { static_assert(t == 1, ""); }
+
+constexpr int one = 1;
+f(one);
+// error: t is not constexpr in the body of f
+
+f(integral_constant<int, one>{});
+// ok: implicit conversion to int is constexpr
+```
+
+Note:
+The issue here is that argument passing strips `constexpr`ness. To see it
+clearly, consider what would happen if `f` was not a template and if it was
+defined in a different translation unit. Inside this other TU, how could the
+compiler tell whether the argument `f` is called with is `constexpr` or not?
+
+`constexpr`ness can be retained by encoding the value of the argument in a
+type, and then using the template system to pass this value to the body of
+the function.
+
+====================
+
+### We can do `constexpr` arithmetic
+
+```c++
+constexpr int two = ((3 * 2) + 4) / 5;
+```
+
+----
+
+### `integral_constant` version
+
+```c++
+template <typename X, typename Y>
+struct plus {
+  using type = integral_constant<
+    decltype(X::value + Y::value),
+    X::value + Y::value
+  >;
+};
+
+using three = plus<integral_constant<int, 1>,
+                   integral_constant<int, 2>>::type;
+```
+
+----
+
+### But what if?
+
+```c++
+template <typename V, V v, typename U, U u>
+constexpr auto
+operator+(integral_constant<V, v>, integral_constant<U, u>)
+{ return integral_constant<decltype(v + u), v + u>{}; }
+
+template <typename V, V v, typename U, U u>
+constexpr auto
+operator==(integral_constant<V, v>, integral_constant<U, u>)
+{ return integral_constant<bool, v == u>{}; }
+
+// ...
+```
+
+----
+
+### Tadam!
+
+```c++
+static_assert(decltype(
+  integral_constant<int, 1>{} + integral_constant<int, 4>{}
+                              ==
+                 integral_constant<int, 5>{}
+  )::value, "");
+```
+
+----
+
+### (or simply)
+
+```c++
+static_assert(integral_constant<int, 1>{} + integral_constant<int, 4>{}
+                                          ==
+                            integral_constant<int, 5>{}
+, "");
+```
+
+----
+
+### Pass me the sugar, please
+
+```c++
+template <int i>
+constexpr integral_constant<int, i> int_c{};
+
+static_assert(int_c<1> + int_c<4> == int_c<5>, "");
+```
+
+----
+
+### More sugar
+
+```c++
+template <char ...c>
+constexpr auto operator"" _c() {
+  // parse the characters and return an integral_constant
+}
+
+static_assert(1_c + 4_c == 5_c, "");
+```
+
+====================
+
+### Euclidean distance
+
+$$
+  \mathrm{distance}\left((x_1, y_1), (x_2, y_2)\right)
+      := \sqrt{(x_1 - x_2)^2 + (y_1 - y_2)^2}
+$$
+
+----
+
+### Compile-time arithmetic: then
+
+```cpp
+template <typename P1, typename P2>
+struct distance {
+  using xs = typename minus<typename P1::x,
+                            typename P2::x>::type;
+  using ys = typename minus<typename P1::y,
+                            typename P2::y>::type;
+  using type = typename sqrt<
+    typename plus<
+      typename multiplies<xs, xs>::type,
+      typename multiplies<ys, ys>::type
+    >::type
+  >::type;
+};
+
+static_assert(equal_to<
+  distance<point<int_<3>, int_<5>>, point<int_<7>, int_<2>>>::type,
+  int_<5>
+>::value, "");
+```
+
+----
+
+### Compile-time arithmetic: now
+
+```cpp
+template <typename P1, typename P2>
+constexpr auto distance(P1 p1, P2 p2) {
+  auto xs = p1.x - p2.x;
+  auto ys = p1.y - p2.y;
+  return sqrt(xs*xs + ys*ys);
+}
+
+static_assert(distance(point(3_c, 5_c), point(7_c, 2_c)) == 5_c, "");
+```
+
+----
+
+### But runtime arithmetic works too
+
+```cpp
+auto p1 = point(3, 5); // dynamic values now
+auto p2 = point(7, 2); //
+assert(distance(p1, p2) == 5); // same function works!
+```
+
+====================
+
+### Pretty cool? Wait!
+
+```c++
+template <typename T, T n>
+struct integral_constant {
+  // ...
+
+  template <typename F>
+  void times(F f) const {
+    f(); f(); ... f(); // n times
+  }
+};
+```
+
+----
+
+### Loop unrolling: then
+
+```cpp
+__attribute__((noinline)) void f() { }
+
+int main() {
+    #pragma PLZ UNROLL
+    for (int i = 0; i != 10; ++i)
+        f();
+}
+```
+
+----
+
+### Loop unrolling: now
+
+```cpp
+__attribute__((noinline)) void f() { }
+
+int main() {
+    int_c<10>.times(f);
+}
+```
+
+----
+
+### Sceptical?
+
+```
+_main:
+  ; snip
+  push    rbp
+  mov rbp, rsp
+  call __Z1fv
+  call __Z1fv
+  call __Z1fv
+  call __Z1fv
+  call __Z1fv
+  call __Z1fv
+  call __Z1fv
+  call __Z1fv
+  call __Z1fv
+  call __Z1fv
+  xor eax, eax
+  pop rbp
+  ret
+```
+
+====================
+
+### So far so good
+
+----
+
+### What if?
+
+```c++
+template <typename ...T>
+struct tuple {
+  // ...
+
+  template <typename N>
+  constexpr decltype(auto) operator[](N const&) {
+    return std::get<N::value>(*this);
+  }
+};
+```
+
+----
+
+### Accessing an element of a tuple: then
+
+```c++
+tuple<int, char, float> values = {1, 'x', 3.4f};
+char x = std::get<1>(values);
+```
+----
+
+### Accessing an element of a tuple: now
+
+```c++
+tuple<int, char, float> values = {1, 'x', 3.4f};
+char x = values[1_c];
+```
+
+====================
+
+### Why stop here?
+
+- `std::ratio`
+- `std::integer_sequence`
+
+==============================================================================
+
+### What are types?
+
+Note:
+This section introduces the type/value unification.
+
+----
+
+### Aren't they values after all?
+
+```cpp
+using result = add_pointer<int>::type;
+```
+
+----
+
+### Let's treat them as such!
+
+```cpp
+class type {
+  // ...
+};
+
+type t{...};
+```
+
+====================
+
+### What are metafunctions?
+
+----
+
+### Aren't they functions after all?
+
+```c++
+template <typename T>
+struct add_pointer {
+  using type = T*;
+};
+```
+
+----
+
+### Let's treat them as such!
+
+```c++
+type add_pointer(type);
+bool is_pointer(type);
+bool operator==(type t, type u);
+// ...
+
+type t{...};
+type p = add_pointer(t);
+assert(is_pointer(p));
+```
+
+====================
+
+### Cool idea, but useless for metaprogramming
+
+====================
+
+### Easy fix: use templates
+
+```cpp
+template <typename T>
+class type { /* nothing */ };
+
+type<int> t{};
+```
+
+Note:
+Make explicit the link between this and what we did in the previous section
+with integral constants.
+
+----
+
+### Easy fix: use templates
+
+```cpp
+template <typename T>
+constexpr type<T*> add_pointer(type<T> const&)
+{ return {}; }
+
+template <typename T>
+constexpr std::false_type is_pointer(type<T> const&)
+{ return {}; }
+
+template <typename T>
+constexpr std::true_type is_pointer(type<T*> const&)
+{ return {}; }
+```
+
+----
+
+### Tadam!
+
+```cpp
+type<int> t{};
+auto p = add_pointer(t);
+static_assert(is_pointer(p), "");
+```
+
+----
+
+### Sugar
+
+```cpp
+template <typename T>
+constexpr type<T> type_c{};
+
+auto t = type_c<int>;
+auto p = add_pointer(t);
+static_assert(is_pointer(p), "");
+```
+
+====================
+
+## But what does that buy us?
+
+====================
+
+### Types are now first class citizens!
+
+```cpp
+auto xs = make_tuple(type_c<int>, type_c<char>, type_c<void>);
+auto c = xs[1_c];
+
+// sugar:
+auto ys = tuple_t<int, char, void>;
+```
+
+====================
+
+### Full language can be used
+
+__Before__
+```cpp
+using ts = vector<int, char&, void*>;
+using us = copy_if<ts, or_<std::is_pointer<_1>,
+                           std::is_reference<_1>>>::type;
+```
+
+----
+
+__After__
+```cpp
+auto ts = make_tuple(type_c<int>, type_c<char&>, type_c<void*>);
+auto us = filter(ts, [](auto t) {
+  return or_(is_pointer(t), is_reference(t));
+});
+```
+
+====================
+
+### Only one library is required
+
+__Before__
+```cpp
+// types (MPL)
+using ts = mpl::vector<int, char&, void*>;
+using us = mpl::copy_if<ts, mpl::or_<std::is_pointer<_1>,
+                                     std::is_reference<_1>>>::type;
+
+// values (Fusion)
+auto vs = fusion::make_vector(1, 'c', nullptr, 3.5);
+auto ws = fusion::filter_if<std::is_integral<mpl::_1>>(vs);
+```
+
+----
+
+__After__
+```cpp
+// types
+auto ts = tuple_t<int, char&, void*>;
+auto us = filter(ts, [](auto t) {
+  return or_(is_pointer(t), is_reference(t));
+});
+
+// values
+auto vs = make_tuple(1, 'c', nullptr, 3.5);
+auto ws = filter(vs, [](auto t) {
+  return is_integral(t);
+});
+```
+
+====================
+
+### Unified syntax means more reuse
+#### (Amphibious EDSL using Boost.Proto)
+
+```cpp
+auto expr = (_1 - _2) / _2;
+
+// compile-time computations
+static_assert(decltype(evaluate(expr, 6_c, 2_c))::value == 2, "");
+
+// runtime computations
+int i = 6, j = 2;
+assert(evaluate(expr, i, j) == 2);
+```
+
+====================
+
+### Unified syntax means more consistency
+
+__Before__
+```cpp
+auto map = make_map<char, int, long, float, double, void>(
+  "char", "int", "long", "float", "double", "void"
+);
+
+std::string i = at_key<int>(map);
+assert(i == "int");
+```
+
+----
+
+__After__
+```cpp
+auto map = make_map(
+  make_pair(type_c<char>,   "char"),
+  make_pair(type_c<int>,    "int"),
+  make_pair(type_c<long>,   "long"),
+  make_pair(type_c<float>,  "float"),
+  make_pair(type_c<double>, "double")
+);
+
+std::string i = map[type_c<int>];
+assert(i == "int");
+```
+
+====================
+
+### So we can represent types as values
+
+----
+
+### But how can we get back the types?
+
+```c++
+auto t = add_pointer(type_c<int>); // could be a complex type computation
+using T = the-type-represented-by-t;
+// do something useful with T here...
+```
+
+----
+
+### Easy fix: use nested alias
+
+```c++
+template <typename T>
+struct type {
+  using type = T;
+};
+```
+
+Note:
+This isn't actually going to work because of the name hiding, but pretend it
+does. It's easy to work around.
+
+----
+
+### And then `decltype`
+
+```c++
+auto t = add_pointer(type_c<int>);
+using T = decltype(t)::type;
+static_assert(std::is_same<T, int*>{}, "");
+// do something useful with T here...
+```
+
+====================
+
+### 3 step process
+
+1. Wrap types into `type<...>`
+2. Perform computations
+3. Unwrap with `decltype(...)::type`
+
+----
+
+## Isn't that cumbersome?
+### Not really <!-- .element class="fragment" -->
+
+----
+
+### Only done at some thin boundaries
+
+```c++
+auto t = type_c<T>;
+auto result = huge_type_computation(t);
+using Result = decltype(result)::type;
+```
+
+----
+
+### Not always required
+
+```c++
+auto t = type_c<T>;
+auto result = type_computation(t);
+static_assert(result == type_c<Something>, "");
+```
+
+Note:
+We did not have to do the third step because we did not need the type itself.
+
+----
+
+### Even then, it's not that bad
+
+----
+
+### Finding smallest type: then
+
+```cpp
+template <typename ...T>
+struct smallest
+  : deref<
+    typename min_element<
+      vector<T...>, less<sizeof_<_1>, sizeof_<_2>>
+    >::type
+  >
+{ };
+
+template <typename ...T>
+using smallest_t = typename smallest<T...>::type;
+
+static_assert(std::is_same<
+  smallest_t<char, long, long double>, char
+>::value, "");
+```
+
+----
+
+### Finding smallest type: now
+
+```cpp
+template <typename ...T>
+auto smallest = minimum(tuple_t<T...>, [](auto t, auto u) {
+  return sizeof_(t) < sizeof_(u);
+});
+
+template <typename ...T>
+using smallest_t = typename decltype(smallest<T...>)::type;
+
+static_assert(std::is_same<
+  smallest_t<char, long, long double>, char
+>::value, "");
+```
+
+Note:
+Also note that this is a very good example of a short type-only computation,
+which is where we would expect the new paradigm to suffer the most.
+
+====================
+
+### So types are objects
+### What should be their interface? <!-- .element class="fragment" -->
+
+----
+
+### It's precisely `<type_traits>`!
+
+```c++
+add_pointer  -> std::add_pointer
+add_const    -> std::add_const
+add_volatile -> std::add_volatile
+// ...
+
+is_pointer   -> std::is_pointer
+is_const     -> std::is_const
+is_volatile  -> std::is_volatile
+// ...
+
+operator==  -> std::is_same
+// ...
+```
+
+----
+
+### There's a generic lifting process
+
+----
+
+### Let's reconsider:
+
+```c++
+template <typename T>
+type<T*> add_pointer(type<T>) { return {}; }
+```
+
+----
+
+### This could also be written as
+
+```c++
+template <typename T>
+auto add_pointer(type<T>) {
+  return type_c<typename std::add_pointer<T>::type>;
+}
+```
+
+----
+
+### There's a pattern
+
+```c++
+template <template <typename ...> class F>
+struct metafunction_t {
+  template <typename ...T>
+  auto operator()(type<T> ...) const {
+    return type_c<
+      typename F<T...>::type
+    >;
+  }
+};
+
+metafunction_t<std::add_pointer> add_pointer{};
+
+auto i = type_c<int>;
+auto i_ptr = add_pointer(i);
+static_assert(is_pointer(i_ptr), "");
+```
+
+----
+
+### Sugar, again
+
+```c++
+template <template <typename ...> class F>
+constexpr metafunction_t<F> metafunction{};
+
+auto add_pointer = metafunction<std::add_pointer>;
+auto remove_reference = metafunction<std::remove_reference>;
+auto add_const = metafunction<std::add_const>;
+// ...
+```
+
+====================
+
+### Case study: switch for `boost::any`
+
+```cpp
+boost::any a = 3;
+std::string result = switch_<std::string>(a)(
+    case_<int>([](int i) { return std::to_string(i); })
+  , case_<double>([](double d) { return std::to_string(d); })
+  , empty([] { return "empty"; })
+  , default_([] { return "default"; })
+);
+assert(result == "3");
+```
+
+----
+
+### First
+
+```cpp
+template <typename T>
+auto case_ = [](auto f) {
+  return std::make_pair(hana::type_c<T>, f);
+};
+
+struct default_t;
+auto default_ = case_<default_t>;
+auto empty = case_<void>;
+```
+
+----
+
+### The beast
+
+```cpp
+template <typename Result = void, typename Any>
+auto switch_(Any& a) {
+  return [&a](auto ...c) -> Result {
+    auto cases = hana::make_tuple(c...);
+
+    auto default_ = hana::find_if(cases, [](auto const& c) {
+      return c.first == hana::type_c<default_t>;
+    });
+    static_assert(!hana::is_nothing(default_),
+      "switch is missing a default_ case");
+
+    auto rest = hana::filter(cases, [](auto const& c) {
+      return c.first != hana::type_c<default_t>;
+    });
+
+    return hana::unpack(rest, [&](auto& ...rest) {
+      return impl<Result>(a, a.type(), default_->second, rest...);
+    });
+  };
+}
+```
+
+----
+
+### Processing cases
+
+```cpp
+template <typename Result, typename Any, typename Default,
+          typename Case, typename ...Rest>
+Result impl(Any& a, std::type_index const& t, Default& default_,
+            Case& case_, Rest& ...rest)
+{
+  using T = typename decltype(case_.first)::type;
+  if (t == typeid(T)) {
+    return hana::if_(hana::type_c<T> == hana::type_c<void>,
+      [](auto& case_, auto& a) {
+        return case_.second();
+      },
+      [](auto& case_, auto& a) {
+        return case_.second(*boost::unsafe_any_cast<T>(&a));
+      }
+    )(case_, a);
+  }
+  else
+    return impl<Result>(a, t, default_, rest...);
+}
+```
+
+----
+
+### Base case
+
+```cpp
+template <typename Result, typename Any, typename Default>
+Result impl(Any&, std::type_index const& t, Default& default_) {
+  return default_();
+}
+```
+
+----
+
+### About 70 LOC
+
+----
+
+### And your coworkers could understand
+### (mostly) <!-- .element class="fragment" -->
+
+==============================================================================
+
+## My proposal, your deliverance: Hana
+
+- Heterogeneous + type level computations
+- 80+ algorithms
+- 8 heterogeneous containers
+- Improved compile-times
+
+====================
+
+### Working on C++14 compilers
+
+- Clang >= 3.5
+- GCC 5 on the way
+
+====================
+
+### Newly accepted in Boost!
+#### Soon part of the distribution
+
+====================
+
+## Embrace the future
+## Embrace Hana <!-- .element class="fragment fade-in" -->
+
+====================
+
+# Thank you
+
+<span class="fragment fade-in">
+http://ldionne.com <br>
+http://github.com/ldionne
+</span>
+
+==============================================================================
+
+## Bonus
+
+====================
+
+### Sorting at compile-time: then
+
+```cpp
+template <typename Sequence, typename Pred>
+struct sort_impl;
+
+template <typename Sequence, typename Pred>
+struct sort
+  : eval_if<empty<Sequence>,
+      identity<Sequence>,
+      sort_impl<Sequence, Pred>
+  >
+{ };
+```
+
+----
+
+### Sorting at compile-time: then
+
+```cpp
+template <typename Sequence, typename Pred>
+struct sort_impl {
+  using pivot = typename begin<Sequence>::type;
+  using parts = typename partition<
+    iterator_range<typename next<pivot>::type,
+                   typename end<Sequence>::type>
+    , apply2<typename lambda<Pred>::type, _1,
+             typename deref<pivot>::type>
+    , back_inserter<vector<>>
+    , back_inserter<vector<>>
+  >::type;
+
+  using part1 = typename push_back<
+    typename sort<typename parts::first, Pred>::type,
+    typename deref<pivot>::type
+  >::type;
+
+  using part2 = typename sort<typename parts::second, Pred>::type;
+
+  using type = typename insert_range<
+    part1, typename end<part1>::type, part2
+  >::type;
+};
+```
+
+----
+
+### Sorting at compile-time: now
+
+```cpp
+template <typename Xs, typename Pred>
+auto sort(Xs xs, Pred pred) {
+  return eval_if(length(xs) < size_c<2>,
+    make_lazy(xs),
+    make_lazy([=](auto xs) {
+      auto pivot = front(xs);
+      auto parts = partition(tail(xs), partial(pred, pivot));
+      return concat(
+        append(sort(second(parts), pred), pivot),
+        sort(first(parts), pivot)
+      );
+    })(xs)
+  );
+}
+```
+
+====================
+
+### Case study: indexed sorting
+
+```cpp
+auto types = tuple_t<int[3], int[2], int[1]>;
+auto indexed = indexed_sort(types, [](auto t, auto u) {
+    return sizeof_(t) < sizeof_(u);
+});
+
+auto sorted = first(indexed);
+auto indices = second(indexed);
+
+static_assert(sorted == tuple_t<int[1], int[2], int[3]>, "");
+static_assert(indices == tuple_c<std::size_t, 2, 1, 0>, "");
+```
+
+----
+
+### The beast
+
+```cpp
+auto indexed_sort = [](auto list, auto predicate) {
+  auto indices = to<tuple_tag>(make_range(0_c, size(list)));
+  auto indexed_list = zip_with(make_pair, list, indices);
+  auto sorted = sort(indexed_list, [&](auto const& x, auto const& y) {
+    return predicate(first(x), first(y));
+  });
+  return make_pair(transform(sorted, first), transform(sorted, second));
+};
+```
+
+----
+
+### With Fusion/MPL ...
+
+```cpp
+template <typename Types, typename Predicate = quote2<less>>
+struct indexed_sort {
+  using indexed_types = typename copy<
+    zip_view<vector<Types, range_c<long, 0l, size<Types>::value>>>,
+    back_inserter<vector<>>
+  >::type;
+
+  using sorted = typename sort<
+    indexed_types,
+    apply2<typename lambda<Predicate>::type, front<_1>, front<_2>>
+  >::type;
+
+  using type = pair<
+    typename transform<sorted, front<_1>>::type,
+    typename transform<sorted, back<_1>>::type
+  >;
+};
+```
+
+----
+
+### Faking the initial sequence: now
+
+```cpp
+using Sequence = decltype(unpack(sorted, template_<tuple>))::type;
+auto index_map = second(indexed_sort(indices, less));
+
+Sequence s;
+int (&a)[3] = s[index_map[0_c]];
+int (&b)[2] = s[index_map[1_c]];
+int (&c)[1] = s[index_map[2_c]];
+```
+
+----
+
+### Faking the initial sequence: then
+
+```cpp
+using Sequence = fusion::result_of::as_vector<Sorted>::type;
+using IndexMap = indexed_sort<Indices>::type::second;
+
+Sequence s;
+int (&a)[3] = fusion::at_c<at_c<IndexMap, 0>::type::value>(s);
+int (&b)[2] = fusion::at_c<at_c<IndexMap, 1>::type::value>(s);
+int (&c)[1] = fusion::at_c<at_c<IndexMap, 2>::type::value>(s);
+```
+
+====================
+
+### `std::common_type` : N3843
+
+```cpp
+template <typename T, typename U>
+using builtin_common_t = std::decay_t<decltype(
+  true ? std::declval<T>() : std::declval<U>()
+)>;
+
+template <typename, typename ...>
+struct ct { };
+
+template <typename T>
+struct ct<void, T> : std::decay<T> { };
+
+template <typename T, typename U, typename ...V>
+struct ct<void_t<builtin_common_t<T, U>>, T, U, V...>
+  : ct<void, builtin_common_t<T, U>, V...>
+{ };
+
+template <typename ...T>
+struct common_type : ct<void, T...> { };
+```
+
+----
+
+### `std::common_type` : now
+
+```cpp
+template <typename ...>
+auto common_type_impl = nothing;
+
+template <typename T1, typename ...Tn>
+auto common_type_impl<T1, Tn...> = monadic_fold_left<optional_tag>(
+  tuple_t<Tn...>, type_c<std::decay_t<T1>>,
+  sfinae([](auto t, auto u) -> decltype(
+    traits::decay(true ? traits::declval(t) : traits::declval(u))
+  ) { return {}; })
+);
+
+template <typename ...T>
+struct common_type : decltype(common_type_impl<T...>) { };
+```
+
+                </script>
+                </section>
+            </div>
+        </div>
+
+        <script src="lib/js/head.min.js"></script>
+        <script src="js/reveal.js"></script>
+
+        <script>
+            Reveal.initialize({
+                slideNumber: true,
+                history: true,
+                transition: 'slide',
+
+                dependencies: [
+                    { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+                    { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+                    { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+                    { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+                    { src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+                    { src: 'plugin/math/math.js', async: true }
+                ]
+            });
+        </script>
+
+        <!-- Additional javascript for drawing charts. -->
+        <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+        <script type="text/javascript" src="http://code.highcharts.com/highcharts.js"></script>
+        <script type="text/javascript" src="http://code.highcharts.com/modules/data.js"></script>
+        <script type="text/javascript" src="http://code.highcharts.com/modules/exporting.js"></script>
+        <script type="text/javascript" src="js/chart.js"></script>
+        <script type="text/javascript" src="https://cdn.rawgit.com/michael/github/fb54ae3856341ef4bd3acf877ccf24836fc079d9/github.js"></script>
+        <script type="text/javascript">
+          window.onload = function() {
+            var github = new Github({});
+            var hana = github.getRepo('ldionne', 'hana');
+            hana.getRef('heads/datasets', function(err, sha) {
+              var repo = "https://cdn.rawgit.com/ldionne/hana/" + sha + "/release/clang-3.5.0/";
+
+              $(".benchmark-chart").each(function(index, div) {
+                var dataset = div.getAttribute("data-dataset");
+                $.getJSON(repo + dataset, function(options) {
+                  Hana.initChart($(div), options);
+                });
+              });
+            });
+          };
+        </script>
+
+        <!--
+          Some slides contain charts in them. Sometimes, the charts will not
+          be properly centered in the slide. To fix this, slides with the
+          `data-state="haschart"` attribute trigger a reflowing of all the
+          charts inside their div, which is overkill but fixes the problem.
+        -->
+        <script type="text/javascript">
+          Reveal.addEventListener('haschart', function() {
+            Highcharts.charts.forEach(function(chart) {
+              chart.reflow();
+            });
+          }, false);
+        </script>
+
+    </body>
 </html>
+

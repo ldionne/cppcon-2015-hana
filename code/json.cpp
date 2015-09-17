@@ -2,7 +2,6 @@
 // Distributed under the Boost Software License, Version 1.0.
 
 #include <boost/hana.hpp>
-#include <boost/hana/struct_macros.hpp>
 
 #include <iostream>
 #include <string>
@@ -12,11 +11,9 @@ using namespace boost::hana;
 using namespace std::literals;
 
 
-
-
 template <typename Xs>
 std::string join(Xs&& xs, std::string sep) {
-  return fold.left(intersperse(std::forward<Xs>(xs), sep), "", _ + _);
+  return fold_left(intersperse(std::forward<Xs>(xs), sep), "", _ + _);
 }
 
 // sample(json-base)
@@ -33,7 +30,7 @@ std::string to_json(std::string s) { return quote(s); }
 
 // sample(json-Struct)
 template <typename T>
-  std::enable_if_t<models<Struct, T>(),
+  std::enable_if_t<Struct<T>::value,
 std::string> to_json(T const& x) {
   auto json = transform(keys(x), [&](auto name) {
     auto const& member = at_key(x, name);
@@ -46,7 +43,7 @@ std::string> to_json(T const& x) {
 
 // sample(json-Sequence)
 template <typename Xs>
-  std::enable_if_t<models<Sequence, Xs>(),
+  std::enable_if_t<Sequence<Xs>::value,
 std::string> to_json(Xs const& xs) {
   auto json = transform(xs, [](auto const& x) {
     return to_json(x);

@@ -9,6 +9,6 @@ using namespace boost::hana;
 __attribute__((noinline)) void f() { }
 
 int main() {
-    int_<10>.times(f);
+    int_c<10>.times(f);
 }
 // end-sample
