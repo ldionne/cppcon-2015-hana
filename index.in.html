@@ -606,80 +606,39 @@ char b = values[1_c];
 
 ==============================================================================
 
-### What are types?
-
-Note:
-This section introduces the type/value unification.
-
-----
-
-### Aren't they values after all?
-
-```cpp
-using result = add_pointer<int>::type;
-```
-
-----
-
-### Let's treat them as such!
-
-```cpp
-class type {
-  // ...
-};
-
-type t{...};
-```
+### Arithmetic is in the hat. What next?
 
 ====================
 
-### What are metafunctions?
-
-----
-
-### Aren't they functions after all?
+### Do you know `<type_traits>`?
 
 ```c++
 template <typename T>
 struct add_pointer {
   using type = T*;
 };
+
+using IntPtr = add_pointer<int>::type;
 ```
+
+Note:
+This section introduces the type/value unification.
 
 ----
 
-### Let's treat them as such!
+### Useful for a bunch of stuff
 
-```c++
-type add_pointer(type);
-bool is_pointer(type);
-bool operator==(type t, type u);
-// ...
-
-type t{...};
-type p = add_pointer(t);
-assert(is_pointer(p));
-```
+<!-- TODO: Show simple use case so people who don't know it understand immediately. -->
 
 ====================
 
-### Cool idea, but useless for metaprogramming
-
-====================
-
-### Easy fix: use templates
+### Let's try something
 
 %%type_unification-type%%
 
 Note:
 Make explicit the link between this and what we did in the previous section
 with integral constants.
-
-----
-
-### Easy fix: use templates
-
-%%type_unification-metafunction%%
 
 ----
 
@@ -745,186 +704,6 @@ __Before__
 
 __After__
 %%map-now%%
-
-====================
-
-### So we can represent types as values
-
-----
-
-### But how can we get back the types?
-
-```c++
-auto t = add_pointer(type_c<int>); // could be a complex type computation
-using T = the-type-represented-by-t;
-// do something useful with T here...
-```
-
-----
-
-### Easy fix: use nested alias
-
-```c++
-template <typename T>
-struct type {
-  using type = T;
-};
-```
-
-Note:
-This isn't actually going to work because of the name hiding, but pretend it
-does. It's easy to work around.
-
-----
-
-### And then `decltype`
-
-```c++
-auto t = add_pointer(type_c<int>);
-using T = decltype(t)::type;
-static_assert(std::is_same<T, int*>{}, "");
-// do something useful with T here...
-```
-
-====================
-
-### 3 step process
-
-1. Wrap types into `type<...>`
-2. Perform computations
-3. Unwrap with `decltype(...)::type`
-
-----
-
-## Isn't that cumbersome?
-### Not really <!-- .element class="fragment" -->
-
-----
-
-### Only done at some thin boundaries
-
-```c++
-auto t = type_c<T>;
-auto result = huge_type_computation(t);
-using Result = decltype(result)::type;
-```
-
-----
-
-### Not always required
-
-```c++
-auto t = type_c<T>;
-auto result = type_computation(t);
-static_assert(result == type_c<Something>, "");
-```
-
-Note:
-We did not have to do the third step because we did not need the type itself.
-
-----
-
-### Even then, it's not that bad
-
-----
-
-### Finding smallest type: then
-
-%%smallest_type-then%%
-
-----
-
-### Finding smallest type: now
-
-%%smallest_type-now%%
-
-Note:
-Also note that this is a very good example of a short type-only computation,
-which is where we would expect the new paradigm to suffer the most.
-
-====================
-
-### So types are objects
-### What should be their interface? <!-- .element class="fragment" -->
-
-----
-
-### It's precisely `<type_traits>`!
-
-```c++
-add_pointer  -> std::add_pointer
-add_const    -> std::add_const
-add_volatile -> std::add_volatile
-// ...
-
-is_pointer   -> std::is_pointer
-is_const     -> std::is_const
-is_volatile  -> std::is_volatile
-// ...
-
-operator==  -> std::is_same
-// ...
-```
-
-----
-
-### There's a generic lifting process
-
-----
-
-### Let's reconsider:
-
-```c++
-template <typename T>
-type<T*> add_pointer(type<T>) { return {}; }
-```
-
-----
-
-### This could also be written as
-
-```c++
-template <typename T>
-auto add_pointer(type<T>) {
-  return type_c<typename std::add_pointer<T>::type>;
-}
-```
-
-----
-
-### There's a pattern
-
-```c++
-template <template <typename ...> class F>
-struct metafunction_t {
-  template <typename ...T>
-  auto operator()(type<T> ...) const {
-    return type_c<
-      typename F<T...>::type
-    >;
-  }
-};
-
-metafunction_t<std::add_pointer> add_pointer{};
-
-auto i = type_c<int>;
-auto i_ptr = add_pointer(i);
-static_assert(is_pointer(i_ptr), "");
-```
-
-----
-
-### Sugar, again
-
-```c++
-template <template <typename ...> class F>
-constexpr metafunction_t<F> metafunction{};
-
-auto add_pointer = metafunction<std::add_pointer>;
-auto remove_reference = metafunction<std::remove_reference>;
-auto add_const = metafunction<std::add_const>;
-// ...
-```
 
 ====================
 

@@ -9,12 +9,8 @@
 
 // sample(type_unification-type)
 template <typename T>
-class type { /* nothing */ };
+struct type { };
 
-type<int> t{};
-// end-sample
-
-// sample(type_unification-metafunction)
 template <typename T>
 constexpr type<T*> add_pointer(type<T> const&)
 { return {}; }
