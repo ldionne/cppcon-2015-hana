@@ -26,7 +26,6 @@ auto default_ = case_<default_t>;
 auto empty = case_<void>;
 // end-sample
 
-
 // sample(switch_any-now-impl4)
 template <typename Result, typename Any, typename Default>
 Result impl(Any&, std::type_index const& t, Default& default_) {
@@ -43,11 +42,11 @@ Result impl(Any& a, std::type_index const& t, Default& default_,
   using T = typename decltype(case_.first)::type;
   if (t == typeid(T)) {
     return hana::if_(hana::type_c<T> == hana::type_c<void>,
-      [](auto& case_, auto& a) {
-        return case_.second();
+      [](auto& c, auto& a) {
+        return c.second();
       },
-      [](auto& case_, auto& a) {
-        return case_.second(*boost::unsafe_any_cast<T>(&a));
+      [](auto& c, auto& a) {
+        return c.second(*boost::unsafe_any_cast<T>(&a));
       }
     )(case_, a);
   }
