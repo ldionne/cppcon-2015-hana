@@ -83,6 +83,10 @@ foreach(_file IN LISTS CODE_SAMPLES)
     add_test(sample.${_target} sample.${_target})
 endforeach()
 
+add_custom_target(check ALL
+    COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
+    DEPENDS samples
+    COMMENT "Build all the samples and then run them.")
 
 #=============================================================================
 # Setup the index.html target
@@ -95,4 +99,4 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/index.html
     COMMENT "Generating index.html from index.in.html and source code samples."
 )
 
-add_custom_target(index DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/index.html)
+add_custom_target(index ALL DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/index.html)
