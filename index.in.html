@@ -385,14 +385,14 @@ to write metaprograms. My goal is now to convince them that I found it.
 
 ==============================================================================
 
-### What is an `integral_constant`?
+### Do you know `integral_constant`?
 
 ```c++
-template<class T, T v>
+template <typename T, T v>
 struct integral_constant {
     static constexpr T value = v;
-    typedef T value_type;
-    typedef integral_constant type;
+    using value_type = T;
+    using type = integral_constant;
     constexpr operator value_type() const noexcept { return value; }
     constexpr value_type operator()() const noexcept { return value; }
 };
@@ -405,49 +405,13 @@ the next section, which will introduce the type/value unification per-se.
 
 ----
 
-### A type-level encoding of a `constexpr` value
+### Useful for a bunch of stuff
 
-```c++
-using one = integral_constant<int, 1>;
-```
-
-----
-
-### A `constexpr`-preserving object
-
-```c++
-template <typename T>
-void f(T t) { static_assert(t == 1, ""); }
-
-constexpr int one = 1;
-f(one);
-// error: t is not constexpr in the body of f
-
-f(integral_constant<int, one>{});
-// ok: implicit conversion to int is constexpr
-```
-
-Note:
-The issue here is that argument passing strips `constexpr`ness. To see it
-clearly, consider what would happen if `f` was not a template and if it was
-defined in a different translation unit. Inside this other TU, how could the
-compiler tell whether the argument `f` is called with is `constexpr` or not?
-
-`constexpr`ness can be retained by encoding the value of the argument in a
-type, and then using the template system to pass this value to the body of
-the function.
+<!-- TODO: Show simple use case so people who don't know it understand immediately. -->
 
 ====================
 
-### We can do `constexpr` arithmetic
-
-```c++
-constexpr int two = ((3 * 2) + 4) / 5;
-```
-
-----
-
-### `integral_constant` version
+### Compile-time arithmetic: classic approach
 
 ```c++
 template <typename X, typename Y>
@@ -464,7 +428,11 @@ using three = plus<integral_constant<int, 1>,
 
 ----
 
-### But what if?
+### That's ok, but...
+
+----
+
+### What if?
 
 ```c++
 template <typename V, V v, typename U, U u>
@@ -556,7 +524,11 @@ $$
 
 ====================
 
-### Pretty cool? Wait!
+## That's not all
+
+====================
+
+### Loop unrolling
 
 ```c++
 template <typename T, T n>
@@ -572,20 +544,11 @@ struct integral_constant {
 
 ----
 
-### Loop unrolling: then
-
-%%unrolling-then%%
-
-----
-
-### Loop unrolling: now
+### Sceptical?
 
 %%unrolling-now%%
 
-----
-
-### Sceptical?
-
+Assembly with -O3
 ```
 _main:
   ; snip
@@ -608,11 +571,7 @@ _main:
 
 ====================
 
-### So far so good
-
-----
-
-### What if?
+### Tuple access
 
 ```c++
 template <typename ...T>
@@ -628,19 +587,14 @@ struct tuple {
 
 ----
 
-### Accessing an element of a tuple: then
+### Compare
 
 ```c++
 tuple<int, char, float> values = {1, 'x', 3.4f};
-char x = std::get<1>(values);
-```
-----
 
-### Accessing an element of a tuple: now
+char a = std::get<1>(values);
 
-```c++
-tuple<int, char, float> values = {1, 'x', 3.4f};
-char x = values[1_c];
+char b = values[1_c];
 ```
 
 ====================
