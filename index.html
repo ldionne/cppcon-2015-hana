@@ -207,25 +207,6 @@ using pointers = mpl::transform<seq,
 
 ====================
 
-### Note
-
-```c++
-                    fusion::vector != mpl::vector
-```
-
-----
-
-### Consider
-
-```c++
-mpl::vector<int, void, char>{} // ok
-
-// error: field has incomplete type void
-fusion::vector<int, void, char>{}
-```
-
-====================
-
 ## Claim
 ### Type-level $\;\subset\;$ heterogeneous <!-- .element class="fragment" -->
 
