@@ -50,183 +50,104 @@ Louis Dionne, CppCon 2015
 
 ==============================================================================
 
-## Quadrants of computation in C++
+### Standard library = containers + algorithms
+
+```c++
+std::vector<int> ints{1, 2, 3, 4};
+
+std::for_each(ints.begin(), ints.end(), [](int i) {
+  std::cout << i * i << std::endl;
+});
+```
 
 <!--
 If needed, define new MathJax commands just below this to avoid seeing
 them load on the first slide.
 -->
 
-====================
-
-### Runtime computations (classic)
-
 ----
 
-### Runtime sequences
+### But what about __heterogeneous__ containers?
 
 ```c++
-std::vector<int> ints{1, 2, 3, 4};
+struct Dog { std::string name; };
+struct Cat { std::string name; };
+struct Person { std::string name; };
+
+std::vector<???> things{Dog{"Snoopy"}, Cat{"Garfield"}, Person{"Bob"}};
+
+std::for_each(things.begin(), things.end(), [](??? x) {
+  std::cout << x.name << std::endl;
+});
 ```
 
 ----
 
-### Runtime functions
+### Easy: use polymorphism!
 
 ```c++
-std::string f(int i) {
-  return std::to_string(i * i);
-}
+struct Nameable { virtual std::string name() = 0; };
 
-std::string nine = f(3);
-```
+struct Dog : Nameable { std::string name() override; };
+struct Cat : Nameable { std::string name() override; };
+struct Person : Nameable { std::string name() override; };
 
-----
+std::vector<Nameable*> things{new Dog{"Snoopy"},
+                              new Cat{"Garfield"},
+                              new Person{"Bob"}};
 
-### Runtime algorithms
-
-```c++
-std::vector<std::string> strings;
-std::transform(ints.begin(), ints.end(),
-               std::back_inserter(strings), f);
-```
-
-====================
-
-### `constexpr` computations
-
-----
-
-### `constexpr` sequences
-
-```c++
-constexpr std::array<int, 4> ints{1, 2, 3, 4};
-```
-
-----
-
-### `constexpr` functions
-
-```c++
-constexpr int factorial(int n) {
-  return n == 0 ? 1 : n * factorial(n - 1);
-}
-
-constexpr int six = factorial(3);
-```
-
-----
-
-### `constexpr` algorithms
-
-```c++
-template <typename T, std::size_t N, typename F>
-  constexpr std::array<std::result_of_t<F(T)>, N>
-transform(std::array<T, N> array, F f) {
-  // ...
-}
-
-constexpr std::array<int, 4> ints{1, 2, 3, 4};
-constexpr std::array<int, 4> facts = transform(ints, factorial);
+std::for_each(things.begin(), things.end(), [](Nameable* x) {
+  std::cout << x->name() << std::endl;
+});
 ```
 
 ====================
 
-### Heterogeneous computations (Fusion)
+### But what if you don't want to go dynamic?
 
 ----
 
-### Heterogeneous sequences
+### Use `std::tuple`!
 
 ```c++
-fusion::vector<int, std::string, float> seq{1, "abc", 3.4f};
+std::tuple<Dog, Cat, Person> things{{"Snoopy"}, {"Garfield"}, {"Bob"}};
+
+std::for_each(things, [](auto const& x) {
+  std::cout << x.name << std::endl;
+});
 ```
 
 ----
 
-### Heterogeneous functions
-
-```c++
-struct to_string {
-  template <typename T>
-  std::string operator()(T t) const {
-    std::stringstream ss;
-    ss << t;
-    return ss.str();
-  }
-};
-
-std::string three = to_string{}(3);
-std::string pi = to_string{}(3.14159);
-```
-
-----
-
-### Heterogeneous algorithms
-
-```c++
-fusion::vector<int, std::string, float> seq{1, "abc", 3.4f};
-fusion::vector<std::string, std::string, std::string> strings =
-                fusion::transform(seq, to_string{});
-```
+### If only it was that easy
 
 ====================
 
-### Type-level computations (MPL)
+## Claim 1
+### We need algorithms on heterogeneous sequences <!-- .element class="fragment" -->
 
 ----
 
-### Type-level sequences
-
-```c++
-using seq = mpl::vector<int, char, float, void>;
-```
+### Sure, but we already have Boost.Fusion and Boost.MPL
 
 ----
 
-### Type-level functions
-
-```c++
-template <typename T>
-struct add_const_pointer {
-  using type = T const*;
-};
-
-using result = add_const_pointer<int>::type;
-```
+## Claim 2
+### MPL is redundant, and Fusion is not general enough <!-- .element class="fragment" -->
 
 ----
 
-### Type-level algorithms
-
-```c++
-using seq = mpl::vector<int, char, float, void>;
-using pointers = mpl::transform<seq,
-                      mpl::quote1<add_const_pointer>>::type;
-```
-
-====================
-
-## Claim
-### Type-level $\;\subset\;$ heterogeneous <!-- .element class="fragment" -->
+## Claim 3
+### C++14 changes everything <!-- .element class="fragment" -->
 
 ==============================================================================
 
-## Why bother?
+### See for yourself
 
 Note:
 This section contains a couple of motivating examples to pique the curiosity.
 The examples should be skimmed over to avoid losing time and explaining
 details that will be covered later.
-
-====================
-
-### C++14 is a serious game changer
-#### $\rightarrow$ We can do better now
-
-====================
-
-### See for yourself
 
 ====================
 
@@ -266,6 +187,18 @@ details that will be covered later.
 
 ====================
 
+### Finding the smallest type: then
+
+%%smallest_type-then%%
+
+----
+
+### Finding the smallest type: now
+
+%%smallest_type-now%%
+
+====================
+
 ### Generating JSON: then
 
 ```c++
@@ -291,13 +224,13 @@ __Output__:
 
 ----
 
-### Handle `Sequences`
+### Handle heterogeneous sequences
 
 %%json-Sequence%%
 
 ----
 
-### Handle `Structs`
+### Handle user-defined types
 
 %%json-Struct%%
 
@@ -362,7 +295,7 @@ auto xs = hana::reverse(1);
 
 Note:
 Hopefully, the audience should be convinced by now that there's a better way
-to write metaprograms. My goal is now to convince them that I found it.
+to write metaprograms. My goal is now to convince them that Hana is that way.
 
 ==============================================================================
 
@@ -581,10 +514,6 @@ char b = values[1_c];
 - `std::integer_sequence`
 
 ==============================================================================
-
-### Arithmetic is in the hat. What next?
-
-====================
 
 ### Do you know `<type_traits>`?
 

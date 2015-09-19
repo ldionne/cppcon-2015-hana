@@ -12,9 +12,6 @@
 #include <type_traits>
 
 
-template <int n>
-struct storage { char weight[n]; };
-
 namespace then {
 using namespace boost::mpl;
 
@@ -28,18 +25,10 @@ struct smallest
   >
 { };
 
-template <typename ...T>
-using smallest_t = typename smallest<T...>::type;
-
 static_assert(std::is_same<
-  smallest_t<char, long, long double>, char
->::value, "");
+  smallest<char, long, long double>::type, char
+>{}, "");
 // end-sample
-
-static_assert(std::is_same<
-  smallest_t<storage<3>, storage<1>, storage<2>>,
-  storage<1>
->::value, "");
 }
 
 
@@ -48,22 +37,12 @@ using namespace boost::hana;
 
 // sample(smallest_type-now)
 template <typename ...T>
-auto smallest = minimum(tuple_t<T...>, [](auto t, auto u) {
+auto smallest = minimum(make_tuple(type_c<T>...), [](auto t, auto u) {
   return sizeof_(t) < sizeof_(u);
 });
 
-template <typename ...T>
-using smallest_t = typename decltype(smallest<T...>)::type;
-
-static_assert(std::is_same<
-  smallest_t<char, long, long double>, char
->::value, "");
+static_assert(smallest<char, long, long double> == type_c<char>, "");
 // end-sample
-
-static_assert(std::is_same<
-  smallest_t<storage<3>, storage<1>, storage<2>>,
-  storage<1>
->::value, "");
 }
 
 int main() { }
