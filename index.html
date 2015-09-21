@@ -50,104 +50,188 @@ Louis Dionne, CppCon 2015
 
 ==============================================================================
 
-### Standard library = containers + algorithms
-
-```c++
-std::vector<int> ints{1, 2, 3, 4};
-
-std::for_each(ints.begin(), ints.end(), [](int i) {
-  std::cout << i * i << std::endl;
-});
-```
+## Quadrants of computation in C++
 
 <!--
 If needed, define new MathJax commands just below this to avoid seeing
 them load on the first slide.
 -->
 
+====================
+
+### Runtime computations (classic)
+
 ----
 
-### But what about __heterogeneous__ containers?
+### Runtime sequences
 
 ```c++
-struct Dog { std::string name; };
-struct Cat { std::string name; };
-struct Person { std::string name; };
-
-std::vector<???> things{Dog{"Snoopy"}, Cat{"Garfield"}, Person{"Bob"}};
-
-std::for_each(things.begin(), things.end(), [](??? x) {
-  std::cout << x.name << std::endl;
-});
+std::vector<int> ints{1, 2, 3, 4};
 ```
 
 ----
 
-### Easy: use polymorphism!
+### Runtime functions
 
 ```c++
-struct Nameable { virtual std::string name() = 0; };
+std::string f(int i) {
+  return std::to_string(i * i);
+}
 
-struct Dog : Nameable { std::string name() override; };
-struct Cat : Nameable { std::string name() override; };
-struct Person : Nameable { std::string name() override; };
+std::string nine = f(3);
+```
 
-std::vector<Nameable*> things{new Dog{"Snoopy"},
-                              new Cat{"Garfield"},
-                              new Person{"Bob"}};
+----
 
-std::for_each(things.begin(), things.end(), [](Nameable* x) {
-  std::cout << x->name() << std::endl;
-});
+### Runtime algorithms
+
+```c++
+std::vector<std::string> strings;
+std::transform(ints.begin(), ints.end(),
+               std::back_inserter(strings), f);
 ```
 
 ====================
 
-### But what if you don't want to go dynamic?
+### `constexpr` computations
 
 ----
 
-### Use `std::tuple`!
+### `constexpr` sequences
 
 ```c++
-std::tuple<Dog, Cat, Person> things{{"Snoopy"}, {"Garfield"}, {"Bob"}};
+constexpr std::array<int, 4> ints{1, 2, 3, 4};
+```
 
-std::for_each(things, [](auto const& x) {
-  std::cout << x.name << std::endl;
-});
+----
+
+### `constexpr` functions
+
+```c++
+constexpr int factorial(int n) {
+  return n == 0 ? 1 : n * factorial(n - 1);
+}
+
+constexpr int six = factorial(3);
+```
+
+----
+
+### `constexpr` algorithms
+
+```c++
+template <typename T, std::size_t N, typename F>
+  constexpr std::array<std::result_of_t<F(T)>, N>
+transform(std::array<T, N> array, F f) {
+  // ...
+}
+
+constexpr std::array<int, 4> ints{1, 2, 3, 4};
+constexpr std::array<int, 4> facts = transform(ints, factorial);
+```
+
+====================
+
+### Heterogeneous computations
+
+----
+
+### Heterogeneous sequences
+
+```c++
+std::tuple<int, std::string, float> seq{1, "abc", 3.4f};
+```
+
+----
+
+### Heterogeneous functions
+
+```c++
+struct to_string {
+  template <typename T>
+  std::string operator()(T t) const {
+    std::stringstream ss;
+    ss << t;
+    return ss.str();
+  }
+};
+
+std::string three = to_string{}(3);
+std::string pi = to_string{}(3.14159);
+```
+
+----
+
+### Heterogeneous algorithms
+
+```c++
+std::tuple<int, std::string, float> seq{1, "abc", 3.4f};
+std::tuple<std::string, std::string, std::string> strings =
+              std::transform(seq, to_string{});
 ```
 
 ----
 
 ### If only it was that easy
 
-====================
+----
 
 ## Claim 1
 ### We need algorithms on heterogeneous sequences <!-- .element class="fragment" -->
 
+====================
+
+### Type-level computations (MPL)
+
 ----
 
-### Sure, but we already have Boost.Fusion and Boost.MPL
+### Type-level sequences
+
+```c++
+using seq = mpl::vector<int, char, float, void>;
+```
+
+----
+
+### Type-level functions
+
+```c++
+template <typename T>
+struct add_const_pointer {
+  using type = T const*;
+};
+
+using result = add_const_pointer<int>::type;
+```
+
+----
+
+### Type-level algorithms
+
+```c++
+using seq = mpl::vector<int, char, float, void>;
+using pointers = mpl::transform<seq,
+                      mpl::quote1<add_const_pointer>>::type;
+```
 
 ----
 
 ## Claim 2
-### MPL is redundant, and Fusion is not general enough <!-- .element class="fragment" -->
-
-----
-
-## Claim 3
-### C++14 changes everything <!-- .element class="fragment" -->
+### MPL is redundant <!-- .element class="fragment" -->
 
 ==============================================================================
 
-### See for yourself
+## But most importantly
+### C++14 changes everything <!-- .element class="fragment" -->
 
 Note:
 This section contains a couple of motivating examples to pique the curiosity.
 The examples should be skimmed over to avoid losing time and explaining
 details that will be covered later.
+
+====================
+
+### See for yourself
 
 ====================
 
