@@ -1098,19 +1098,119 @@ http://github.com/ldionne
 
 ### `for_each`
 
-<!-- TODO -->
+```cpp
+template <typename Tuple, typename F, std::size_t ...i>
+void for_each_impl(Tuple const& tuple, F const& f,
+                   std::index_sequence<i...>)
+{
+  using Expand = int[];
+  (void)Expand{0, (f(std::get<i>(tuple)), 0)...};
+}
+
+template <typename ...T, typename F>
+void for_each(std::tuple<T...> const& tuple, F const& f) {
+  for_each_impl(tuple, f, std::make_index_sequence<sizeof...(T)>{});
+}
+```
 
 ====================
 
 ### `transform`
 
-<!-- TODO -->
+```cpp
+template <typename ...T, typename F, std::size_t ...i>
+auto transform_impl(std::tuple<T...> const& tuple, F const& f,
+                    std::index_sequence<i...>)
+{
+  return std::make_tuple(f(std::get<i>(tuple))...);
+}
+
+template <typename ...T, typename F>
+auto transform(std::tuple<T...> const& tuple, F const& f) {
+  return transform_impl(tuple, f,
+            std::make_index_sequence<sizeof...(T)>{});
+}
+```
 
 ====================
 
-### `filter`
+## Easy so far
+### Brace yourselves <!-- .element class="fragment" -->
 
-<!-- TODO -->
+====================
+
+### Here comes `filter`
+
+```cpp
+template <typename Tuple, typename Predicate, std::size_t ...i>
+auto filter_impl(Tuple const& tuple, Predicate predicate,
+                 std::index_sequence<i...>)
+{
+  using Indices = filter_indices<
+    decltype(predicate(std::get<i>(tuple)))::value...
+  >;
+  return slice(tuple, Indices{});
+}
+
+template <typename ...T, typename Predicate>
+auto filter(std::tuple<T...> const& tuple, Predicate predicate) {
+  return filter_impl(tuple, predicate,
+                     std::make_index_sequence<sizeof...(T)>{});
+}
+```
+
+----
+
+```cpp
+template <typename Tuple, std::size_t ...i>
+auto slice(Tuple const& tuple, std::index_sequence<i...>) {
+  return std::make_tuple(std::get<i>(tuple)...);
+}
+```
+
+----
+
+```cpp
+template <bool ...results>
+struct filter_indices_helper {
+  // ...
+};
+
+template <bool ...results>
+using filter_indices = typename filter_indices_helper<results...>::
+                       template as_index_sequence<>;
+```
+
+----
+
+```cpp
+static constexpr bool results_array[sizeof...(results)] = {results...};
+static constexpr std::size_t N =
+  count(results_array, results_array + sizeof...(results), true);
+
+static constexpr array<std::size_t, N> compute_indices() {
+  array<std::size_t, N> indices{};
+  std::size_t current_index = 0;
+  for (std::size_t i = 0; i < N; ++i)
+    if (results_array[i])
+      indices[i] = current_index++;
+  return indices;
+}
+
+static constexpr auto computed_indices = compute_indices();
+```
+
+----
+
+```cpp
+template <typename Indices = std::make_index_sequence<N>>
+struct as_index_sequence;
+
+template <std::size_t ...i>
+struct as_index_sequence<std::index_sequence<i...>>
+  : std::index_sequence<computed_indices[i]...>
+{ };
+```
 
 
                 </script>
