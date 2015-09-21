@@ -2,8 +2,6 @@
 // Distributed under the Boost Software License, Version 1.0.
 
 #include <boost/hana.hpp>
-#include <boost/hana/ext/std/type_traits.hpp>
-#include <boost/hana/ext/std/utility.hpp>
 
 #include <type_traits>
 using namespace boost::hana;

@@ -2,7 +2,6 @@
 // Distributed under the Boost Software License, Version 1.0.
 
 #include <boost/hana.hpp>
-#include <boost/hana/ext/std/type_traits.hpp>
 
 #include <boost/mpl/copy_if.hpp>
 #include <boost/mpl/equal.hpp>
@@ -41,7 +40,7 @@ using namespace boost::hana::traits;
 // sample(full_language-now)
 auto ts = make_tuple(type_c<int>, type_c<char&>, type_c<void*>);
 auto us = filter(ts, [](auto t) {
-  return or_(is_pointer(t), is_reference(t));
+  return is_pointer(t) || is_reference(t);
 });
 // end-sample
 
@@ -74,7 +73,7 @@ using namespace boost::hana::traits;
 // types
 auto ts = tuple_t<int, char&, void*>;
 auto us = filter(ts, [](auto t) {
-  return or_(is_pointer(t), is_reference(t));
+  return is_pointer(t) || is_reference(t);
 });
 
 // values
