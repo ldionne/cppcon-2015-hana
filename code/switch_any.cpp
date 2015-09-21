@@ -15,7 +15,7 @@
 namespace hana = boost::hana;
 
 
-// sample(switch_any-now-impl1)
+// sample(switch_any-impl1)
 template <typename T>
 auto case_ = [](auto f) {
   return std::make_pair(hana::type_c<T>, f);
@@ -26,14 +26,14 @@ auto default_ = case_<default_t>;
 auto empty = case_<void>;
 // end-sample
 
-// sample(switch_any-now-impl4)
+// sample(switch_any-impl4)
 template <typename Result, typename Any, typename Default>
 Result impl(Any&, std::type_index const& t, Default& default_) {
   return default_();
 }
 // end-sample
 
-// sample(switch_any-now-impl3)
+// sample(switch_any-impl3)
 template <typename Result, typename Any, typename Default,
           typename Case, typename ...Rest>
 Result impl(Any& a, std::type_index const& t, Default& default_,
@@ -55,7 +55,7 @@ Result impl(Any& a, std::type_index const& t, Default& default_,
 }
 // end-sample
 
-// sample(switch_any-now-impl2)
+// sample(switch_any-impl2)
 template <typename Result = void, typename Any>
 auto switch_(Any& a) {
   return [&a](auto ...c) -> Result {
@@ -188,7 +188,7 @@ int main() {
   for (auto& test: tests)
     test();
 
-// sample(switch_any-now-usage)
+// sample(switch_any-usage)
 boost::any a = 3;
 std::string result = switch_<std::string>(a)(
     case_<int>([](int i) { return std::to_string(i); })

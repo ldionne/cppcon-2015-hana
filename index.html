@@ -1104,204 +1104,26 @@ http://github.com/ldionne
 
 ==============================================================================
 
-## Bonus
+### Bonus: Implementing heterogeneous algorithms
 
 ====================
 
-### Sorting at compile-time: then
+### `for_each`
 
-```cpp
-template <typename Sequence, typename Pred>
-struct sort_impl;
-
-template <typename Sequence, typename Pred>
-struct sort
-  : eval_if<empty<Sequence>,
-      identity<Sequence>,
-      sort_impl<Sequence, Pred>
-  >
-{ };
-```
-
-----
-
-### Sorting at compile-time: then
-
-```cpp
-template <typename Sequence, typename Pred>
-struct sort_impl {
-  using pivot = typename begin<Sequence>::type;
-  using parts = typename partition<
-    iterator_range<typename next<pivot>::type,
-                   typename end<Sequence>::type>
-    , apply2<typename lambda<Pred>::type, _1,
-             typename deref<pivot>::type>
-    , back_inserter<vector<>>
-    , back_inserter<vector<>>
-  >::type;
-
-  using part1 = typename push_back<
-    typename sort<typename parts::first, Pred>::type,
-    typename deref<pivot>::type
-  >::type;
-
-  using part2 = typename sort<typename parts::second, Pred>::type;
-
-  using type = typename insert_range<
-    part1, typename end<part1>::type, part2
-  >::type;
-};
-```
-
-----
-
-### Sorting at compile-time: now
-
-```cpp
-template <typename Xs, typename Pred>
-auto sort(Xs xs, Pred pred) {
-  return eval_if(length(xs) < size_c<2>,
-    make_lazy(xs),
-    make_lazy([=](auto xs) {
-      auto pivot = front(xs);
-      auto parts = partition(tail(xs), partial(pred, pivot));
-      return concat(
-        append(sort(second(parts), pred), pivot),
-        sort(first(parts), pivot)
-      );
-    })(xs)
-  );
-}
-```
+<!-- TODO -->
 
 ====================
 
-### Case study: indexed sorting
+### `transform`
 
-```cpp
-auto types = tuple_t<int[3], int[2], int[1]>;
-auto indexed = indexed_sort(types, [](auto t, auto u) {
-    return sizeof_(t) < sizeof_(u);
-});
-
-auto sorted = first(indexed);
-auto indices = second(indexed);
-
-static_assert(sorted == tuple_t<int[1], int[2], int[3]>, "");
-static_assert(indices == tuple_c<std::size_t, 2, 1, 0>, "");
-```
-
-----
-
-### The beast
-
-```cpp
-auto indexed_sort = [](auto list, auto predicate) {
-  auto indices = to<tuple_tag>(make_range(0_c, size(list)));
-  auto indexed_list = zip_with(make_pair, list, indices);
-  auto sorted = sort(indexed_list, [&](auto const& x, auto const& y) {
-    return predicate(first(x), first(y));
-  });
-  return make_pair(transform(sorted, first), transform(sorted, second));
-};
-```
-
-----
-
-### With Fusion/MPL ...
-
-```cpp
-template <typename Types, typename Predicate = quote2<less>>
-struct indexed_sort {
-  using indexed_types = typename copy<
-    zip_view<vector<Types, range_c<long, 0l, size<Types>::value>>>,
-    back_inserter<vector<>>
-  >::type;
-
-  using sorted = typename sort<
-    indexed_types,
-    apply2<typename lambda<Predicate>::type, front<_1>, front<_2>>
-  >::type;
-
-  using type = pair<
-    typename transform<sorted, front<_1>>::type,
-    typename transform<sorted, back<_1>>::type
-  >;
-};
-```
-
-----
-
-### Faking the initial sequence: now
-
-```cpp
-using Sequence = decltype(unpack(sorted, template_<tuple>))::type;
-auto index_map = second(indexed_sort(indices, less));
-
-Sequence s;
-int (&a)[3] = s[index_map[0_c]];
-int (&b)[2] = s[index_map[1_c]];
-int (&c)[1] = s[index_map[2_c]];
-```
-
-----
-
-### Faking the initial sequence: then
-
-```cpp
-using Sequence = fusion::result_of::as_vector<Sorted>::type;
-using IndexMap = indexed_sort<Indices>::type::second;
-
-Sequence s;
-int (&a)[3] = fusion::at_c<at_c<IndexMap, 0>::type::value>(s);
-int (&b)[2] = fusion::at_c<at_c<IndexMap, 1>::type::value>(s);
-int (&c)[1] = fusion::at_c<at_c<IndexMap, 2>::type::value>(s);
-```
+<!-- TODO -->
 
 ====================
 
-### `std::common_type` : N3843
+### `filter`
 
-```cpp
-template <typename T, typename U>
-using builtin_common_t = std::decay_t<decltype(
-  true ? std::declval<T>() : std::declval<U>()
-)>;
+<!-- TODO -->
 
-template <typename, typename ...>
-struct ct { };
-
-template <typename T>
-struct ct<void, T> : std::decay<T> { };
-
-template <typename T, typename U, typename ...V>
-struct ct<void_t<builtin_common_t<T, U>>, T, U, V...>
-  : ct<void, builtin_common_t<T, U>, V...>
-{ };
-
-template <typename ...T>
-struct common_type : ct<void, T...> { };
-```
-
-----
-
-### `std::common_type` : now
-
-```cpp
-template <typename ...>
-auto common_type_impl = nothing;
-
-template <typename T1, typename ...Tn>
-auto common_type_impl<T1, Tn...> = monadic_fold_left<optional_tag>(
-  tuple_t<Tn...>, type_c<std::decay_t<T1>>,
-  sfinae([](auto t, auto u) -> decltype(
-    traits::decay(true ? traits::declval(t) : traits::declval(u))
-  ) { return {}; })
-);
-
-template <typename ...T>
-struct common_type : decltype(common_type_impl<T...>) { };
-```
 
                 </script>
                 </section>
