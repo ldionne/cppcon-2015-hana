@@ -525,8 +525,10 @@ struct plus {
   >;
 };
 
-using three = plus<integral_constant<int, 1>,
-                   integral_constant<int, 2>>::type;
+static_assert(std::is_same<
+  plus<integral_constant<int, 1>, integral_constant<int, 4>>::type,
+  integral_constant<int, 5>
+>::value, "");
 ```
 
 ----
