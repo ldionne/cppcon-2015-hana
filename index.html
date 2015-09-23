@@ -349,38 +349,6 @@ int main() {
 
 ====================
 
-### Finding the smallest type: then
-
-```cpp
-template <typename ...T>
-struct smallest
-  : deref<
-    typename min_element<
-      vector<T...>, less<sizeof_<_1>, sizeof_<_2>>
-    >::type
-  >
-{ };
-
-static_assert(std::is_same<
-  smallest<char, long, long double>::type, char
->{}, "");
-```
-
-----
-
-### Finding the smallest type: now
-
-```cpp
-template <typename ...T>
-auto smallest = minimum(make_tuple(type_c<T>...), [](auto t, auto u) {
-  return sizeof_(t) < sizeof_(u);
-});
-
-static_assert(smallest<char, long, long double> == type_c<char>, "");
-```
-
-====================
-
 ### Generating JSON: then
 
 ```c++
