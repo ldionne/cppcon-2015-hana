@@ -1066,25 +1066,6 @@ http://github.com/ldionne
 
 ====================
 
-### `for_each`
-
-```cpp
-template <typename Tuple, typename F, std::size_t ...i>
-void for_each_impl(Tuple const& tuple, F const& f,
-                   std::index_sequence<i...>)
-{
-  using Expand = int[];
-  (void)Expand{0, (f(std::get<i>(tuple)), 0)...};
-}
-
-template <typename ...T, typename F>
-void for_each(std::tuple<T...> const& tuple, F const& f) {
-  for_each_impl(tuple, f, std::make_index_sequence<sizeof...(T)>{});
-}
-```
-
-====================
-
 ### `transform`
 
 ```cpp
