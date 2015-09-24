@@ -1141,14 +1141,15 @@ static constexpr std::size_t N =
 
 static constexpr array<std::size_t, N> compute_indices() {
   array<std::size_t, N> indices{};
-  std::size_t current_index = 0;
-  for (std::size_t i = 0; i < N; ++i)
+  std::size_t* out = &indices[0];
+  for (std::size_t i = 0; i < sizeof...(results); ++i)
     if (results_array[i])
-      indices[i] = current_index++;
+      *out++ = i;
   return indices;
 }
 
-static constexpr auto computed_indices = compute_indices();
+static constexpr array<std::size_t, N> computed_indices
+                                      = compute_indices();
 ```
 
 ----

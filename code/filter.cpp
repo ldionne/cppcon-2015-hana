@@ -58,14 +58,15 @@ static constexpr std::size_t N =
 
 static constexpr array<std::size_t, N> compute_indices() {
   array<std::size_t, N> indices{};
-  std::size_t current_index = 0;
-  for (std::size_t i = 0; i < N; ++i)
+  std::size_t* out = &indices[0];
+  for (std::size_t i = 0; i < sizeof...(results); ++i)
     if (results_array[i])
-      indices[i] = current_index++;
+      *out++ = i;
   return indices;
 }
 
-static constexpr auto computed_indices = compute_indices();
+static constexpr array<std::size_t, N> computed_indices
+                                      = compute_indices();
 // end-sample
 
 // sample(filter-as_index_sequence)
@@ -102,10 +103,19 @@ auto filter(std::tuple<T...> const& tuple, Predicate predicate) {
 // end-sample
 
 int main() {
-  std::tuple<int, char, float, double> ts{1, '2', 3.3f, 4.4};
-  auto us = filter(ts, [](auto x) {
-    return std::is_integral<decltype(x)>{};
-  });
+  {
+    std::tuple<int, float, char, double> ts{1, 2.2f, '3', 4.4};
+    auto us = filter(ts, [](auto x) {
+      return std::is_integral<decltype(x)>{};
+    });
 
-  assert(us == std::make_tuple(1, '2'));
+    assert(us == std::make_tuple(1, '3'));
+  } {
+    std::tuple<int, float, char, double, int> ts{1, 2.2f, '3', 4.4, 5};
+    auto us = filter(ts, [](auto x) {
+      return std::is_integral<decltype(x)>{};
+    });
+
+    assert(us == std::make_tuple(1, '3', 5));
+  }
 }
