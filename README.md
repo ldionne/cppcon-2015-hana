@@ -4,7 +4,7 @@ This repository contains my [reveal.js][]-based presentation on Hana for
 CppCon 2015.
 
 ## Basic usage
-Go to https://ldionne.github.io/hana-cppcon-2015 or open `index.html` with
+Go to https://ldionne.github.io/cppcon-2015-hana or open `index.html` with
 your browser.
 
 ## Advanced usage
